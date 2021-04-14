@@ -64,18 +64,18 @@
 
     <el-table v-loading="loading" :data="infoList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
-      <el-table-column label="${comment}" align="center" prop="avatarUrl" />
+      <el-table-column label="${comment}" align="center" prop="id" :show-overflow-tooltip="true"/>
+      <el-table-column label="${comment}" align="center" prop="avatarUrl" :show-overflow-tooltip="true"/>
       <el-table-column label="${comment}" align="center" prop="city" />
       <el-table-column label="${comment}" align="center" prop="country" />
       <el-table-column label="${comment}" align="center" prop="countryCode" />
       <el-table-column label="${comment}" align="center" prop="gender" />
       <el-table-column label="${comment}" align="center" prop="language" />
-      <el-table-column label="${comment}" align="center" prop="nickName" />
-      <el-table-column label="${comment}" align="center" prop="openCode" />
-      <el-table-column label="${comment}" align="center" prop="phoneNumber" />
+      <el-table-column label="${comment}" align="center" prop="nickName" :show-overflow-tooltip="true"/>
+      <el-table-column label="${comment}" align="center" prop="openCode" :show-overflow-tooltip="true"/>
+      <el-table-column label="${comment}" align="center" prop="phoneNumber" :show-overflow-tooltip="true"/>
       <el-table-column label="${comment}" align="center" prop="province" />
-      <el-table-column label="${comment}" align="center" prop="purePhoneNumber" />
+      <el-table-column label="${comment}" align="center" prop="purePhoneNumber" :show-overflow-tooltip="true"/>
       <el-table-column label="${comment}" align="center" prop="updateDateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateDateTime, '{y}-{m}-{d}') }}</span>
@@ -100,7 +100,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

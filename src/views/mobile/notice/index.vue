@@ -74,11 +74,11 @@
 
     <el-table v-loading="loading" :data="noticeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="标题" align="center" prop="nickName" />
+      <el-table-column label="标题" align="center" prop="nickName" :show-overflow-tooltip="true"/>
       <el-table-column label="发布时间" align="center" prop="publishDate" />
       <el-table-column label="类型" align="center" prop="type" :formatter="typeFormat" />
       <el-table-column label="发布人" align="center" prop="publishName" />
-      <el-table-column label="内容" align="center" prop="reward" />
+      <el-table-column label="内容" align="center" prop="reward" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button

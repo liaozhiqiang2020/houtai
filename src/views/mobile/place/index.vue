@@ -92,12 +92,12 @@
 
     <el-table v-loading="loading" :data="placeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="地址" align="center" prop="address" :show-overflow-tooltips="true"/>
+      <el-table-column label="地址" align="center" prop="address" :show-overflow-tooltip="true"/>
       <el-table-column label="提成" align="center" prop="commission" />
       <el-table-column label="负责人" align="center" prop="contacts" />
-      <el-table-column label="电话" align="center" prop="contactsTel" :show-overflow-tooltips="true" />
+      <el-table-column label="电话" align="center" prop="contactsTel" :show-overflow-tooltip="true" />
       <el-table-column label="结束时间" align="center" prop="endTime" />
-      <el-table-column label="场地名" align="center" prop="name" />
+      <el-table-column label="场地名" align="center" prop="name" :show-overflow-tooltip="true"/>
       <el-table-column label="租金" align="center" prop="rent" />
       <el-table-column label="收租方式" align="center" prop="rentType" :formatter="rentTypeFormat" />
       <el-table-column label="签约时间" align="center" prop="signTime" />

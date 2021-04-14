@@ -93,7 +93,7 @@
     <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="所属场地" align="center" prop="place_name" />
+      <el-table-column label="所属场地" align="center" prop="place_name" :show-overflow-tooltip="true"/>
       <el-table-column label="家长电话" align="center" prop="parent_tel" :show-overflow-tooltip="true"/>
       <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
       <el-table-column label="剩余金额" align="center" prop="money" />

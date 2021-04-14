@@ -88,7 +88,7 @@
 <!--      <el-table-column label="课程名" align="center" prop="courseId" />-->
 <!--      <el-table-column label="是否开票" align="center" prop="invoice" />-->
       <el-table-column label="缴费金额" align="center" prop="payMoney" />
-      <el-table-column label="备注" align="center" prop="description" />
+      <el-table-column label="备注" align="center" prop="description" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
