@@ -10,9 +10,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="品牌" prop="brand">
-        <el-select v-model="queryParams.brand" placeholder="请选择品牌" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+      <el-form-item label="商品分类" prop="brand">
+        <el-select v-model="queryParams.type" placeholder="请选择商品分类">
+          <el-option
+            v-for="dict in goodsTypeOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="parseInt(dict.dictValue)"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -84,6 +89,7 @@
     <el-table v-loading="loading" :data="storageList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="商品名" align="center" prop="name" />
+      <el-table-column label="分类" align="center" prop="type" :formatter="goodsTypeFormat"/>
       <el-table-column label="品牌" align="center" prop="brand" />
       <el-table-column label="单价" align="center" prop="price" />
       <el-table-column label="库存量" align="center" prop="inventory" />
@@ -123,9 +129,14 @@
         <el-form-item label="商品名" prop="name">
           <el-input v-model="form.name" placeholder="请输入商品名" />
         </el-form-item>
-        <el-form-item label="品牌" prop="brand">
-          <el-select v-model="form.brand" placeholder="请选择品牌">
-            <el-option label="请选择字典生成" value="" />
+        <el-form-item label="商品分类" prop="brand">
+          <el-select v-model="form.type" placeholder="请选择商品分类">
+            <el-option
+              v-for="dict in goodsTypeOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="单价" prop="price">
@@ -208,6 +219,7 @@ export default {
       // 商品库存表格数据
       storageList: [],
       storageOptions:[],
+      goodsTypeOptions:[],
       inStorageView:false,
       outStorageView:false,
       storageId:'',
@@ -237,6 +249,9 @@ export default {
   },
   created() {
     this.getList();
+    this.getDicts("goods_type").then(response => {
+      this.goodsTypeOptions = response.data;
+    });
   },
   methods: {
     /** 查询商品库存列表 */
@@ -247,6 +262,10 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    // 商品分类字典翻译
+    goodsTypeFormat(row, column) {
+      return this.selectDictLabel(this.goodsTypeOptions, row.type);
     },
     // 取消按钮
     cancel() {

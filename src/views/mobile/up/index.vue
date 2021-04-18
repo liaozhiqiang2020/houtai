@@ -73,14 +73,13 @@
 
     <el-table v-loading="loading" :data="upList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="id" align="center" prop="id" />
       <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="手机号" align="center" prop="phone" />
+      <el-table-column label="手机号" align="center" prop="phone" :show-overflow-tooltip="true"/>
       <el-table-column label="年龄" align="center" prop="age" />
-      <el-table-column label="性别" align="center" prop="sex" />
-      <el-table-column label="报名时间" align="center" prop="signTime" />
-      <el-table-column label="学校" align="center" prop="school" />
-      <el-table-column label="备注" align="center" prop="remarks" />
+      <el-table-column label="性别" align="center" prop="sex" :formatter="sexTypeFormat"/>
+      <el-table-column label="报名时间" align="center" prop="signTime" :show-overflow-tooltip="true"/>
+      <el-table-column label="学校" align="center" prop="school" :show-overflow-tooltip="true"/>
+      <el-table-column label="备注" align="center" prop="remarks" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -162,6 +161,8 @@ export default {
       total: 0,
       // 学员报名表格数据
       upList: [],
+      //数据字典性别
+      sexOptions:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -186,6 +187,9 @@ export default {
   },
   created() {
     this.getList();
+    this.getDicts("sign_up_sex_type").then(response => {
+      this.sexOptions = response.data;
+    });
   },
   methods: {
     /** 查询学员报名列表 */
@@ -196,6 +200,10 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    // 收租方式字典翻译
+    sexTypeFormat(row, column) {
+      return this.selectDictLabel(this.sexOptions, row.sex);
     },
     // 取消按钮
     cancel() {
