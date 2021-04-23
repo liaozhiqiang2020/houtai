@@ -10,7 +10,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="发送手机号" prop="sendMobile">
+      <el-form-item label="手机号" prop="sendMobile">
         <el-input
           v-model="queryParams.sendMobile"
           placeholder="请输入发送手机号"
@@ -73,9 +73,8 @@
 
     <el-table v-loading="loading" :data="msgList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="短信id" align="center" prop="id" />
-      <el-table-column label="短信内容" align="center" prop="content" />
-      <el-table-column label="发送时间" align="center" prop="sendTime" />
+      <el-table-column label="短信内容" align="center" prop="content" :show-overflow-tooltip="true"/>
+      <el-table-column label="发送时间" align="center" prop="sendTime" :show-overflow-tooltip="true"/>
       <el-table-column label="发送手机号" align="center" prop="sendMobile" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -96,7 +95,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
