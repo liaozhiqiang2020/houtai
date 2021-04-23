@@ -20,6 +20,16 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="接收人" prop="receiveId">
+        <el-select v-model="queryParams.receiveId" placeholder="请选择">
+          <el-option
+            v-for="item in studentOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -79,6 +89,7 @@
       <el-table-column label="类型" align="center" prop="type" :formatter="typeFormat" />
       <el-table-column label="发布人" align="center" prop="publishName" />
       <el-table-column label="内容" align="center" prop="reward" :show-overflow-tooltip="true"/>
+      <el-table-column label="接收人" align="center" prop="receiveName" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -129,6 +140,16 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="接收人" prop="receiveId">
+          <el-select v-model="form.receiveId" placeholder="请选择">
+            <el-option
+              v-for="item in studentOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -141,6 +162,7 @@
 <script>
 import { listNotice, getNotice, delNotice, addNotice, updateNotice, exportNotice } from "@/api/mobile/notice";
 import ImageUpload from '@/components/ImageUpload';
+import {placeList,studentList,courseList,coachList} from "@/api/mobile/student";
 
 export default {
   name: "Notice",
@@ -163,6 +185,8 @@ export default {
       total: 0,
       // 公告轮播表格数据
       noticeList: [],
+      //学员选项
+      studentOptions:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -189,6 +213,7 @@ export default {
     this.getDicts("notice_type").then(response => {
       this.typeOptions = response.data;
     });
+    this.getStduentOption();
   },
   methods: {
     /** 查询公告轮播列表 */
@@ -197,6 +222,13 @@ export default {
       listNotice(this.queryParams).then(response => {
         this.noticeList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询学员下拉列表
+    getStduentOption(){
+      studentList().then(response => {
+        this.studentOptions = response;
         this.loading = false;
       });
     },
