@@ -1,43 +1,32 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="课程" prop="courseId">
-        <el-select v-model="queryParams.courseId" placeholder="请选择">
+      <el-form-item label="按钮名称" prop="name">
+        <el-input
+          v-model="queryParams.name"
+          placeholder="请输入按钮名称"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="菜单角色" prop="menuRole">
+        <el-select v-model="queryParams.menuRole" placeholder="请选择菜单角色" clearable size="small">
           <el-option
-            v-for="item in courseOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
+            v-for="dict in menuRoleOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
         </el-select>
       </el-form-item>
-      <el-form-item label="场地" prop="placeId">
-        <el-select v-model="queryParams.placeId" placeholder="请选择">
+      <el-form-item label="是否禁用" prop="menuRole">
+        <el-select v-model="queryParams.useFlag" placeholder="请选择是否禁用">
           <el-option
-            v-for="item in placeOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="学员" prop="studentId">
-        <el-select v-model="queryParams.studentId" placeholder="请选择学员">
-          <el-option
-            v-for="item in studentOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="教练" prop="coachId">
-        <el-select v-model="queryParams.coachId" placeholder="请选择">
-          <el-option
-            v-for="item in coachOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
+            v-for="dict in useFlagOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -55,7 +44,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['mobile:class:add']"
+          v-hasPermi="['mobile:menubtn:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -66,7 +55,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['mobile:class:edit']"
+          v-hasPermi="['mobile:menubtn:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -77,7 +66,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['mobile:class:remove']"
+          v-hasPermi="['mobile:menubtn:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -87,21 +76,19 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['mobile:class:export']"
+          v-hasPermi="['mobile:menubtn:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="classList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="menubtnList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="周期" align="center" prop="week" />
-      <el-table-column label="开始时间" align="center" prop="startTime" />
-      <el-table-column label="结束时间" align="center" prop="endTime" />
-      <el-table-column label="学员" align="center" prop="studentName" />
-      <el-table-column label="课程" align="center" prop="courseName" />
-      <el-table-column label="教练" align="center" prop="coachName" />
-      <el-table-column label="场地" align="center" prop="placeName" />
+      <el-table-column label="按钮名称" align="center" prop="name" />
+      <el-table-column label="按钮图片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>
+      <el-table-column label="菜单角色" align="center" prop="menuRole" :formatter="menuRoleFormat" />
+      <el-table-column label="跳转页面" align="center" prop="targetUrl" :show-overflow-tooltip="true"/>
+      <el-table-column label="是否禁用" align="center" prop="useFlag" :formatter="useFlagFormat"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -109,14 +96,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mobile:class:edit']"
+            v-hasPermi="['mobile:menubtn:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['mobile:class:remove']"
+            v-hasPermi="['mobile:menubtn:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -130,59 +117,38 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改选课管理对话框 -->
+    <!-- 添加或修改首页按钮权限对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="周期" prop="week">
-          <el-input v-model="form.week" placeholder="请输入周期" />
+        <el-form-item label="按钮名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入按钮名称" />
         </el-form-item>
-        <el-form-item label="开始时间" prop="startTime">
-          <el-input v-model="form.startTime" placeholder="请输入开始时间" />
+        <el-form-item label="按钮图片">
+          <imageUpload v-model="form.imgUrl"/>
         </el-form-item>
-        <el-form-item label="结束时间" prop="endTime">
-          <el-input v-model="form.endTime" placeholder="请输入结束时间" />
-        </el-form-item>
-        <el-form-item label="学员" prop="studentId">
-          <el-select v-model="form.studentId" placeholder="请选择学员">
+        <el-form-item label="菜单角色" prop="menuRole">
+          <el-select v-model="form.menuRole" placeholder="请选择菜单角色">
             <el-option
-              v-for="item in studentOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
+              v-for="dict in menuRoleOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="课程" prop="courseId">
-          <el-select v-model="form.courseId" placeholder="请选择">
+        <el-form-item label="跳转页面" prop="targetUrl">
+          <el-input v-model="form.targetUrl" placeholder="请输入跳转页面" />
+        </el-form-item>
+        <el-form-item label="是否禁用" prop="menuRole">
+          <el-select v-model="form.useFlag" placeholder="请选择是否禁用">
             <el-option
-              v-for="item in courseOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
+              v-for="dict in useFlagOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="教练" prop="coachId">
-          <el-select v-model="form.coachId" placeholder="请选择">
-            <el-option
-              v-for="item in coachOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="场地" prop="placeId">
-          <el-select v-model="form.placeId" placeholder="请选择">
-            <el-option
-              v-for="item in placeOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -193,12 +159,13 @@
 </template>
 
 <script>
-import { listClass, getClass, delClass, addClass, updateClass, exportClass } from "@/api/mobile/class";
-import {placeList,studentList,courseList,coachList} from "@/api/mobile/student";
+import { listMenubtn, getMenubtn, delMenubtn, addMenubtn, updateMenubtn, exportMenubtn } from "@/api/mobile/menubtn";
+import ImageUpload from '@/components/ImageUpload';
 
 export default {
-  name: "Class",
+  name: "Menubtn",
   components: {
+    ImageUpload,
   },
   data() {
     return {
@@ -214,27 +181,24 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 选课管理表格数据
-      classList: [],
-      //场地选项
-      placeOptions:[],
-      //学员选项
-      studentOptions:[],
-      //课程选项
-      courseOptions:[],
-      //教练选项
-      coachOptions:[],
+      // 首页按钮权限表格数据
+      menubtnList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
+      // 菜单角色字典
+      menuRoleOptions: [],
+      // 禁用启用字典
+      useFlagOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        placeId: null,
-        courseId: null,
-        coachId: null
+        name: null,
+        imgUrl: null,
+        menuRole: null,
+        targetUrl: null
       },
       // 表单参数
       form: {},
@@ -245,48 +209,30 @@ export default {
   },
   created() {
     this.getList();
-    this.getPlaceOption();
-    this.getStduentOption();
-    this.getCourseOption();
-    this.getCoachOption();
+    this.getDicts("menu_btn_type").then(response => {
+      this.menuRoleOptions = response.data;
+    });
+    this.getDicts("menu_btn_use").then(response => {
+      this.useFlagOptions = response.data;
+    });
   },
   methods: {
-    /** 查询选课管理列表 */
+    /** 查询首页按钮权限列表 */
     getList() {
       this.loading = true;
-      listClass(this.queryParams).then(response => {
-        this.classList = response.rows;
+      listMenubtn(this.queryParams).then(response => {
+        this.menubtnList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
     },
-    //查询场地下拉列表
-    getPlaceOption(){
-      placeList().then(response => {
-        this.placeOptions = response;
-        this.loading = false;
-      });
+    // 菜单角色字典翻译
+    menuRoleFormat(row, column) {
+      return this.selectDictLabel(this.menuRoleOptions, row.menuRole);
     },
-    //查询学员下拉列表
-    getStduentOption(){
-      studentList().then(response => {
-        this.studentOptions = response;
-        this.loading = false;
-      });
-    },
-    //查询课程下拉列表
-    getCourseOption(){
-      courseList().then(response => {
-        this.courseOptions = response;
-        this.loading = false;
-      });
-    },
-    //查询教练下拉列表
-    getCoachOption(){
-      coachList().then(response => {
-        this.coachOptions = response;
-        this.loading = false;
-      });
+    // 禁用启用字典翻译
+    useFlagFormat(row, column) {
+      return this.selectDictLabel(this.useFlagOptions, row.useFlag);
     },
     // 取消按钮
     cancel() {
@@ -297,12 +243,10 @@ export default {
     reset() {
       this.form = {
         id: null,
-        endTime: null,
-        placeId: null,
-        startTime: null,
-        week: null,
-        courseId: null,
-        coachId: null
+        name: null,
+        imgUrl: null,
+        menuRole: null,
+        targetUrl: null
       };
       this.resetForm("form");
     },
@@ -326,16 +270,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加选课管理";
+      this.title = "添加首页按钮权限";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getClass(id).then(response => {
+      getMenubtn(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改选课管理";
+        this.title = "修改首页按钮权限";
       });
     },
     /** 提交按钮 */
@@ -343,13 +287,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateClass(this.form).then(response => {
+            updateMenubtn(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addClass(this.form).then(response => {
+            addMenubtn(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -361,12 +305,12 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$confirm('是否确认删除选课管理编号为"' + ids + '"的数据项?', "警告", {
+      this.$confirm('是否确认删除首页按钮权限编号为"' + ids + '"的数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return delClass(ids);
+          return delMenubtn(ids);
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
@@ -375,12 +319,12 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有选课管理数据项?', "警告", {
+      this.$confirm('是否确认导出所有首页按钮权限数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return exportClass(queryParams);
+          return exportMenubtn(queryParams);
         }).then(response => {
           this.download(response.msg);
         })
