@@ -21,13 +21,14 @@
         </el-select>
       </el-form-item>
       <el-form-item label="场地" prop="placeId">
-        <el-input
-          v-model="queryParams.placeId"
-          placeholder="请输入场地"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="电话" prop="tel">
         <el-input
@@ -96,7 +97,7 @@
       <el-table-column label="身份证号" align="center" prop="idCard" :show-overflow-tooltip="true"/>
       <el-table-column label="全职/兼职" align="center" prop="isFullTime" />
       <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="场地" align="center" prop="placeId" />
+      <el-table-column label="场地" align="center" prop="placeName" />
       <el-table-column label="简单描述" align="center" prop="remarks" :show-overflow-tooltip="true"/>
       <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -161,7 +162,14 @@
           </el-select>
         </el-form-item>
         <el-form-item label="场地" prop="placeId">
-          <el-input v-model="form.placeId" placeholder="请输入场地" />
+          <el-select v-model="form.placeId" placeholder="请选择">
+            <el-option
+              v-for="item in placeOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="简单描述" prop="remarks">
           <el-input v-model="form.remarks" placeholder="请输入简单描述" />
@@ -181,6 +189,7 @@
 <script>
 import { listCoach, getCoach, delCoach, addCoach, updateCoach, exportCoach } from "@/api/mobile/coach";
 import ImageUpload from '@/components/ImageUpload';
+import {placeList,studentList,courseList,coachList} from "@/api/mobile/student";
 
 export default {
   name: "Coach",
@@ -203,6 +212,8 @@ export default {
       total: 0,
       // 教练信息表格数据
       coachList: [],
+      //场地选项
+      placeOptions:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -226,6 +237,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
   },
   methods: {
     /** 查询教练信息列表 */
@@ -234,6 +246,13 @@ export default {
       listCoach(this.queryParams).then(response => {
         this.coachList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },
@@ -264,6 +283,7 @@ export default {
     handleQuery() {
       this.queryParams.pageNum = 1;
       this.getList();
+      console.log(this.coachList);
     },
     /** 重置按钮操作 */
     resetQuery() {
