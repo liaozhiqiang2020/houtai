@@ -61,7 +61,7 @@ export function placeList(query) {
   })
 }
 
-// 查询场地下拉列表
+// 查询学员下拉列表
 export function studentList(query) {
   return request({
     url: '/mobile/student/getStudentList',

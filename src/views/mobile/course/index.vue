@@ -10,9 +10,14 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="场地名" prop="placeId">
-        <el-select v-model="queryParams.placeId" placeholder="请选择场地名" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+      <el-form-item label="场地" prop="placeId">
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -73,7 +78,7 @@
       <el-table-column label="课时数" align="center" prop="classHours" />
       <el-table-column label="单节价格" align="center" prop="money" />
       <el-table-column label="课程名" align="center" prop="name" />
-      <el-table-column label="场地名" align="center" prop="placeId" />
+      <el-table-column label="场地名" align="center" prop="placeName" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -93,7 +98,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -114,9 +119,14 @@
         <el-form-item label="课程名" prop="name">
           <el-input v-model="form.name" placeholder="请输入课程名" />
         </el-form-item>
-        <el-form-item label="场地名" prop="placeId">
-          <el-select v-model="form.placeId" placeholder="请选择场地名">
-            <el-option label="请选择字典生成" value="" />
+        <el-form-item label="场地" prop="placeId">
+          <el-select v-model="form.placeId" placeholder="请选择">
+            <el-option
+              v-for="item in placeOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -130,6 +140,7 @@
 
 <script>
 import { listCourse, getCourse, delCourse, addCourse, updateCourse, exportCourse } from "@/api/mobile/course";
+import {placeList} from "@/api/mobile/student";
 
 export default {
   name: "Course",
@@ -151,6 +162,8 @@ export default {
       total: 0,
       // 课程信息表格数据
       courseList: [],
+      //场地选项
+      placeOptions:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -171,6 +184,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
   },
   methods: {
     /** 查询课程信息列表 */
@@ -179,6 +193,13 @@ export default {
       listCourse(this.queryParams).then(response => {
         this.courseList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },

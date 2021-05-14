@@ -19,6 +19,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="缴费方式" prop="chargeType">
+        <el-select v-model="queryParams.chargeType" placeholder="请选择缴费方式">
+          <el-option
+            v-for="dict in chargeTypeOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="parseInt(dict.dictValue)"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="所属场地" prop="placeId">
         <el-select v-model="queryParams.placeId" placeholder="请选择">
           <el-option
@@ -99,6 +109,7 @@
       <el-table-column label="剩余金额" align="center" prop="money" />
       <el-table-column label="年龄" align="center" prop="age" />
       <el-table-column label="剩余课时" align="center" prop="class_hours" />
+      <el-table-column label="缴费方式" align="center" prop="charge_type" :formatter="chargeTypeFormat"/>
       <el-table-column label="家长名" align="center" prop="parent_name" />
       <el-table-column label="报名时间" align="center" prop="registr_time" :show-overflow-tooltip="true"/>
       <el-table-column label="学号" align="center" prop="sn" />
@@ -159,6 +170,16 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="缴费方式" prop="chargeType">
+          <el-select v-model="form.chargeType" placeholder="请选择缴费方式">
+            <el-option
+              v-for="dict in chargeTypeOptions"
+              :key="parseInt(dict.dictValue)"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="报名时间" prop="registrTime">
           <el-input v-model="form.registrTime" placeholder="请输入报名时间" />
         </el-form-item>
@@ -212,6 +233,8 @@ export default {
       total: 0,
       // 学员表格数据
       studentList: [],
+      // 缴费方式字典
+      chargeTypeOptions: [],
       //场地选项
       placeOptions:[],
       // 弹出层标题
@@ -238,6 +261,9 @@ export default {
   created() {
     this.getList();
     this.getPlaceOption();
+    this.getDicts("student_charge_type").then(response => {
+      this.chargeTypeOptions = response.data;
+    });
   },
   methods: {
     /** 查询学员列表 */
@@ -256,6 +282,10 @@ export default {
         this.placeOptions = response;
         this.loading = false;
       });
+    },
+    // 缴费方式字典翻译
+    chargeTypeFormat(row, column) {
+      return this.selectDictLabel(this.chargeTypeOptions, row.charge_type);
     },
     // 取消按钮
     cancel() {
