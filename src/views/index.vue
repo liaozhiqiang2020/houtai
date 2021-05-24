@@ -9,12 +9,12 @@
                 <span class="info-box-icon bg-green"><i class="fa fa-check" aria-hidden="true"></i></span>
 
                 <div class="info-box-content">
-                  <span class="info-box-text">今日教练人数</span>
-                  <span class="info-box-number">
-                                <p style="font-size: 30px;">
-                                    <a href="#" target="_blank" id="nmoDevice">1</a>人
-                                </p>
-                            </span>
+<!--                  <span class="info-box-text">今日教练人数</span>-->
+<!--                  <span class="info-box-number">-->
+<!--                                <p style="font-size: 30px;">-->
+<!--                                    <a href="#" target="_blank" id="nmoDevice">1</a>人-->
+<!--                                </p>-->
+<!--                            </span>-->
                 </div>
                 <!-- /.info-box-content -->
               </div>
@@ -28,10 +28,10 @@
                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                         </span>
                 <div class="info-box-content">
-                  <span class="info-box-text">今日学员人数</span>
+                  <span class="info-box-text">本月学费收入</span>
                   <span class="info-box-number">
                                 <p style="font-size: 30px;">
-                                    <a href="#" target="_blank" id="expDevice">2</a>人
+                                    <a href="#" target="_blank" id="expDevice">{{monthIncome}}</a>元
                                 </p>
                             </span>
 
@@ -54,10 +54,10 @@
               <div class="info-box">
                 <span class="info-box-icon bg-green"><i class="fa fa-jpy" aria-hidden="true"></i></span>
                 <div class="info-box-content">
-                  <span class="info-box-text">今日营业收入</span>
+                  <span class="info-box-text">今日学费收入</span>
                   <span class="info-box-number">
                                 <p style="font-size: 30px;">
-                                <a href="#" target="_blank" id="yedInc">{{income}}</a>元
+                                <a href="#" target="_blank" id="yedInc">{{todayIncome}}</a>元
                                 </p>
                             </span>
                 </div>
@@ -72,12 +72,12 @@
                 <span class="info-box-icon bg-navy"><i class="ion ion-ios-people-outline"></i></span>
 
                 <div class="info-box-content">
-                  <span class="info-box-text">今日报名人数</span>
-                  <span class="info-box-number">
-                                <p style="font-size: 30px;">
-                                <a href="#" target="_blank" id="orderCount">0</a>人
-                                </p>
-                            </span>
+<!--                  <span class="info-box-text">今日报名人数</span>-->
+<!--                  <span class="info-box-number">-->
+<!--                                <p style="font-size: 30px;">-->
+<!--                                <a href="#" target="_blank" id="orderCount">0</a>人-->
+<!--                                </p>-->
+<!--                            </span>-->
                 </div>
 
 
@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { getTodayInComeJs} from "@/api/index";
+import { getTodayInComeJs,getMonthInComeJs} from "@/api/index";
 
 export default {
   name: "index",
@@ -103,40 +103,33 @@ export default {
     return {
       // 版本号
       version: "3.4.0",
-      income:0
+      todayIncome:'0',
+      monthIncome:'0'
     };
   },
   created() {
     this.getTodayInCome();
+    this.getMonthInCome();
   },
   methods: {
     goTarget(href) {
       window.open(href, "_blank");
     },
     getTodayInCome(){
-
+      //查询今日学费收入
       getTodayInComeJs().then(response => {
-        // console.log(response);
-          this.income = response;
-        });
-
+          this.todayIncome = response;
+      });
+    },
+    getMonthInCome(){
+      //查询本月学费收入
+      getMonthInComeJs().then(response => {
+        this.monthIncome = response;
+      });
     }
   },
 };
 
-// $(document).ready(function () {
-//   $.get("./getCount", function (result) {
-//     console.log(result)
-//
-//     $("#nmoDevice").text(result.nmoDevice) //正常设备
-//     if (result.yedInc!=null) {
-//       $("#yedInc").text(result.yedInc) //昨天收入
-//     }
-//     $("#expDevice").text( result.expDevice) //异常设备
-//     $("#orderCount").text(result.yedOrder);  //昨日订单数
-//   });
-//
-// });
 </script>
 
 <style scoped lang="scss">
