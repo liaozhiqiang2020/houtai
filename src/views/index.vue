@@ -57,7 +57,7 @@
                   <span class="info-box-text">今日营业收入</span>
                   <span class="info-box-number">
                                 <p style="font-size: 30px;">
-                                <a href="#" target="_blank" id="yedInc">300</a>元
+                                <a href="#" target="_blank" id="yedInc">{{income}}</a>元
                                 </p>
                             </span>
                 </div>
@@ -95,18 +95,32 @@
 </template>
 
 <script>
+import { getTodayInComeJs} from "@/api/index";
+
 export default {
   name: "index",
   data() {
     return {
       // 版本号
       version: "3.4.0",
+      income:0
     };
+  },
+  created() {
+    this.getTodayInCome();
   },
   methods: {
     goTarget(href) {
       window.open(href, "_blank");
     },
+    getTodayInCome(){
+
+      getTodayInComeJs().then(response => {
+        // console.log(response);
+          this.income = response;
+        });
+
+    }
   },
 };
 
