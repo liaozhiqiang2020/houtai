@@ -7,6 +7,13 @@ export function getTodayInComeJs() {
     method: 'get'
   })
 }
+// 查询昨日学费收入
+export function getLastDayInComeJs() {
+  return request({
+    url: '/mobile/sign/queryLastDayIncome',
+    method: 'get'
+  })
+}
 
 //查询本月学费收入
 export function getMonthInComeJs() {
@@ -15,3 +22,12 @@ export function getMonthInComeJs() {
     method: 'get'
   })
 }
+
+//查询上月学费收入
+export function getLastMonthInComeJs() {
+  return request({
+    url: '/mobile/sign/queryLastMonthIncome',
+    method: 'get'
+  })
+}
+

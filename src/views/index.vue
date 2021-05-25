@@ -1,101 +1,66 @@
 <template>
-  <div class="app-container home">
-    <div class="content-wrapper">
-      <section class="content">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-green"><i class="fa fa-check" aria-hidden="true"></i></span>
-
-                <div class="info-box-content">
-<!--                  <span class="info-box-text">今日教练人数</span>-->
-<!--                  <span class="info-box-number">-->
-<!--                                <p style="font-size: 30px;">-->
-<!--                                    <a href="#" target="_blank" id="nmoDevice">1</a>人-->
-<!--                                </p>-->
-<!--                            </span>-->
-                </div>
-                <!-- /.info-box-content -->
-              </div>
-              <!-- /.info-box -->
-            </div>
-            <!-- /.col -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="info-box">
-
-                        <span class="info-box-icon bg-yellow">
-                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                        </span>
-                <div class="info-box-content">
-                  <span class="info-box-text">本月学费收入</span>
-                  <span class="info-box-number">
-                                <p style="font-size: 30px;">
-                                    <a href="#" target="_blank" id="expDevice">{{monthIncome}}</a>元
-                                </p>
-                            </span>
-
-                  <div style="position: absolute; left:360px; top:3px;">
-                    <p style="font-size: 24px; color: lightgray;">
-                      <i class="fa fa-refresh test" aria-hidden="true"></i>
-                    </p>
-                  </div>
-                </div>
-                <!-- /.info-box-content -->
-              </div>
-              <!-- /.info-box -->
-            </div>
-            <!-- /.col -->
-
-            <!-- fix for small devices only -->
-            <div class="clearfix visible-sm-block"></div>
-
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="info-box">
-                <span class="info-box-icon bg-green"><i class="fa fa-jpy" aria-hidden="true"></i></span>
-                <div class="info-box-content">
-                  <span class="info-box-text">今日学费收入</span>
-                  <span class="info-box-number">
-                                <p style="font-size: 30px;">
-                                <a href="#" target="_blank" id="yedInc">{{todayIncome}}</a>元
-                                </p>
-                            </span>
-                </div>
-                <!-- /.info-box-content -->
-              </div>
-              <!-- /.info-box -->
-            </div>
-            <!-- /.col -->
-            <div class="col-md-3 col-sm-6 col-xs-12">
-              <div class="info-box">
-
-                <span class="info-box-icon bg-navy"><i class="ion ion-ios-people-outline"></i></span>
-
-                <div class="info-box-content">
-<!--                  <span class="info-box-text">今日报名人数</span>-->
-<!--                  <span class="info-box-number">-->
-<!--                                <p style="font-size: 30px;">-->
-<!--                                <a href="#" target="_blank" id="orderCount">0</a>人-->
-<!--                                </p>-->
-<!--                            </span>-->
-                </div>
-
-
-              </div>
-
-            </div>
-
-          </div>
-
+  <el-row :gutter="40" class="panel-group">
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
         </div>
-      </section>
-    </div>
-
-  </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            今日收入
+          </div>
+<!--          <count-to :start-val="0" :end-val="{todayIncome}" :duration="2600" class="card-panel-num" />-->
+          <div class="card-panel-num">{{todayIncome}}元</div>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
+        <div class="card-panel-icon-wrapper icon-shopping">
+          <svg-icon icon-class="shopping" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            昨日收入
+          </div>
+          <!--          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />-->
+          <div class="card-panel-num">{{ lastdayIncome }}元</div>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('messages')">
+        <div class="card-panel-icon-wrapper icon-message">
+          <svg-icon icon-class="message" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            本月收入
+          </div>
+<!--          <count-to :start-val="0" :end-val="{monthIncome}" :duration="3000" class="card-panel-num" />-->
+          <div class="card-panel-num">{{monthIncome}}元</div>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('purchases')">
+        <div class="card-panel-icon-wrapper icon-money">
+          <svg-icon icon-class="money" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            上月收入
+          </div>
+<!--          <count-to :start-val="0" :end-val="{lastMonthIncome}" :duration="3200" class="card-panel-num" />-->
+          <div class="card-panel-num">{{lastMonthIncome}}元</div>
+        </div>
+      </div>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
-import { getTodayInComeJs,getMonthInComeJs} from "@/api/index";
+import { getTodayInComeJs,getMonthInComeJs,getLastMonthInComeJs,getLastDayInComeJs} from "@/api/index";
 
 export default {
   name: "index",
@@ -104,12 +69,16 @@ export default {
       // 版本号
       version: "3.4.0",
       todayIncome:'0',
-      monthIncome:'0'
+      lastdayIncome:'0',
+      monthIncome:'0',
+      lastMonthIncome:'0'
     };
   },
   created() {
     this.getTodayInCome();
     this.getMonthInCome();
+    this.getLastMonthInCome();
+    this.getLastDayInCome();
   },
   methods: {
     goTarget(href) {
@@ -121,10 +90,22 @@ export default {
           this.todayIncome = response;
       });
     },
+    getLastDayInCome(){
+      //查询昨日学费收入
+      getLastDayInComeJs().then(response => {
+        this.lastdayIncome = response;
+      });
+    },
     getMonthInCome(){
       //查询本月学费收入
       getMonthInComeJs().then(response => {
         this.monthIncome = response;
+      });
+    },
+    getLastMonthInCome(){
+      //查询上月学费收入
+      getLastMonthInComeJs().then(response => {
+        this.lastMonthIncome = response;
       });
     }
   },
@@ -132,65 +113,111 @@ export default {
 
 </script>
 
-<style scoped lang="scss">
-.home {
-  blockquote {
-    padding: 10px 20px;
-    margin: 0 0 20px;
-    font-size: 17.5px;
-    border-left: 5px solid #eee;
-  }
-  hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border: 0;
-    border-top: 1px solid #eee;
-  }
-  .col-item {
-    margin-bottom: 20px;
+<style lang="scss" scoped>
+.panel-group {
+  margin-top: 18px;
+
+  .card-panel-col {
+    margin-bottom: 32px;
   }
 
-  ul {
-    padding: 0;
-    margin: 0;
-  }
+  .card-panel {
+    height: 108px;
+    cursor: pointer;
+    font-size: 12px;
+    position: relative;
+    overflow: hidden;
+    color: #666;
+    background: #fff;
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
+    border-color: rgba(0, 0, 0, .05);
 
-  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #676a6c;
-  overflow-x: hidden;
+    &:hover {
+      .card-panel-icon-wrapper {
+        color: #fff;
+      }
 
-  ul {
-    list-style-type: none;
-  }
+      .icon-people {
+        background: #40c9c6;
+      }
 
-  h4 {
-    margin-top: 0px;
-  }
+      .icon-message {
+        background: #36a3f7;
+      }
 
-  h2 {
-    margin-top: 10px;
-    font-size: 26px;
-    font-weight: 100;
-  }
+      .icon-money {
+        background: #f4516c;
+      }
 
-  p {
-    margin-top: 10px;
+      .icon-shopping {
+        background: #34bfa3
+      }
+    }
 
-    b {
-      font-weight: 700;
+    .icon-people {
+      color: #40c9c6;
+    }
+
+    .icon-message {
+      color: #36a3f7;
+    }
+
+    .icon-money {
+      color: #f4516c;
+    }
+
+    .icon-shopping {
+      color: #34bfa3
+    }
+
+    .card-panel-icon-wrapper {
+      float: left;
+      margin: 14px 0 0 14px;
+      padding: 16px;
+      transition: all 0.38s ease-out;
+      border-radius: 6px;
+    }
+
+    .card-panel-icon {
+      float: left;
+      font-size: 48px;
+    }
+
+    .card-panel-description {
+      float: right;
+      font-weight: bold;
+      margin: 26px;
+      margin-left: 0px;
+
+      .card-panel-text {
+        line-height: 18px;
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+
+      .card-panel-num {
+        font-size: 20px;
+      }
     }
   }
+}
 
-  .update-log {
-    ol {
+@media (max-width:550px) {
+  .card-panel-description {
+    display: none;
+  }
+
+  .card-panel-icon-wrapper {
+    float: none !important;
+    width: 100%;
+    height: 100%;
+    margin: 0 !important;
+
+    .svg-icon {
       display: block;
-      list-style-type: decimal;
-      margin-block-start: 1em;
-      margin-block-end: 1em;
-      margin-inline-start: 0;
-      margin-inline-end: 0;
-      padding-inline-start: 40px;
+      margin: 14px auto !important;
+      float: none !important;
     }
   }
 }

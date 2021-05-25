@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '若依管理系统',
+      title: '零之启管理系统',
       logo: logoImg
     }
   }
