@@ -9,8 +9,7 @@
           <div class="card-panel-text">
             今日收入
           </div>
-<!--          <count-to :start-val="0" :end-val="{todayIncome}" :duration="2600" class="card-panel-num" />-->
-          <div class="card-panel-num">{{todayIncome}}元</div>
+          <count-to :start-val="0" :end-val="todayIncome" :duration="2000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -23,8 +22,7 @@
           <div class="card-panel-text">
             昨日收入
           </div>
-          <!--          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />-->
-          <div class="card-panel-num">{{ lastdayIncome }}元</div>
+          <count-to :start-val="0" :end-val="lastdayIncome" :duration="2000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -37,8 +35,7 @@
           <div class="card-panel-text">
             本月收入
           </div>
-<!--          <count-to :start-val="0" :end-val="{monthIncome}" :duration="3000" class="card-panel-num" />-->
-          <div class="card-panel-num">{{monthIncome}}元</div>
+          <count-to :start-val="0" :end-val="monthIncome" :duration="2000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -51,8 +48,7 @@
           <div class="card-panel-text">
             上月收入
           </div>
-<!--          <count-to :start-val="0" :end-val="{lastMonthIncome}" :duration="3200" class="card-panel-num" />-->
-          <div class="card-panel-num">{{lastMonthIncome}}元</div>
+          <count-to :start-val="0" :end-val="lastMonthIncome" :duration="2000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -61,9 +57,11 @@
 
 <script>
 import { getTodayInComeJs,getMonthInComeJs,getLastMonthInComeJs,getLastDayInComeJs} from "@/api/index";
+import countTo from 'vue-count-to';
 
 export default {
   name: "index",
+  components: { countTo },
   data() {
     return {
       // 版本号

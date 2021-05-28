@@ -144,6 +144,17 @@
         <el-form-item label="本节价格" prop="money">
           <el-input v-model="form.money" placeholder="请输入本节价格" />
         </el-form-item>
+        <el-form-item label="课程名" prop="courseId">
+          <el-select v-model="form.courseId" placeholder="请选择课程">
+            <el-option
+              v-for="item in courseOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="备注" prop="remarks">
           <el-input type="textarea" :rows="2" v-model="form.remarks" placeholder="请输入备注" />
         </el-form-item>
