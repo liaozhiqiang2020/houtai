@@ -74,7 +74,6 @@
 
     <el-table v-loading="loading" :data="courseList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="场地名" align="center" prop="id" />
       <el-table-column label="课时数" align="center" prop="classHours" />
       <el-table-column label="单节价格" align="center" prop="money" />
       <el-table-column label="课程名" align="center" prop="name" />
