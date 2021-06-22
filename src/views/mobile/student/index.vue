@@ -29,6 +29,16 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="成人" prop="chargeType">
+        <el-select v-model="queryParams.adult" placeholder="请选择是否成人">
+          <el-option
+            v-for="dict in adultOptions"
+            :key="parseInt(dict.dictValue)"
+            :label="dict.dictLabel"
+            :value="parseInt(dict.dictValue)"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="所属场地" prop="placeId">
         <el-select v-model="queryParams.placeId" placeholder="请选择">
           <el-option
@@ -102,18 +112,19 @@
 
     <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="姓名" align="center" prop="name" />
+      <el-table-column label="姓名" align="center" prop="name" :show-overflow-tooltip="true"/>
       <el-table-column label="所属场地" align="center" prop="place_name" :show-overflow-tooltip="true"/>
       <el-table-column label="家长电话" align="center" prop="parent_tel" :show-overflow-tooltip="true"/>
       <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
-      <el-table-column label="剩余金额" align="center" prop="money" />
-      <el-table-column label="年龄" align="center" prop="age" />
-      <el-table-column label="剩余课时" align="center" prop="class_hours" />
+      <el-table-column label="剩余金额" align="center" prop="money" :show-overflow-tooltip="true"/>
+      <el-table-column label="年龄" align="center" prop="age" :show-overflow-tooltip="true"/>
+      <el-table-column label="剩余课时" align="center" prop="class_hours" :show-overflow-tooltip="true"/>
       <el-table-column label="缴费方式" align="center" prop="charge_type" :formatter="chargeTypeFormat"/>
-      <el-table-column label="家长名" align="center" prop="parent_name" />
+      <el-table-column label="家长名" align="center" prop="parent_name" :show-overflow-tooltip="true"/>
       <el-table-column label="报名时间" align="center" prop="registr_time" :show-overflow-tooltip="true"/>
-      <el-table-column label="学号" align="center" prop="sn" />
+      <el-table-column label="学号" align="center" prop="sn" :show-overflow-tooltip="true"/>
       <el-table-column label="身份证号" align="center" prop="id_card" :show-overflow-tooltip="true"/>
+      <el-table-column label="是否成人" align="center" prop="adult" :formatter="adultFormat" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -183,6 +194,16 @@
         <el-form-item label="报名时间" prop="registrTime">
           <el-input v-model="form.registrTime" placeholder="请输入报名时间" />
         </el-form-item>
+        <el-form-item label="是否成人" prop="adult">
+          <el-select v-model="form.adult" placeholder="请选择是否成人">
+            <el-option
+              v-for="dict in adultOptions"
+              :key="parseInt(dict.dictValue)"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="学号" prop="sn">
           <el-input v-model="form.sn" placeholder="请输入学号" />
         </el-form-item>
@@ -235,6 +256,7 @@ export default {
       studentList: [],
       // 缴费方式字典
       chargeTypeOptions: [],
+      adultOptions: [],
       //场地选项
       placeOptions:[],
       // 弹出层标题
@@ -264,6 +286,9 @@ export default {
     this.getDicts("student_charge_type").then(response => {
       this.chargeTypeOptions = response.data;
     });
+    this.getDicts("student_adult").then(response => {
+      this.adultOptions = response.data;
+    });
   },
   methods: {
     /** 查询学员列表 */
@@ -286,6 +311,10 @@ export default {
     // 缴费方式字典翻译
     chargeTypeFormat(row, column) {
       return this.selectDictLabel(this.chargeTypeOptions, row.charge_type);
+    },
+    // 是否成人字典翻译
+    adultFormat(row, column) {
+      return this.selectDictLabel(this.adultOptions, row.adult);
     },
     // 取消按钮
     cancel() {
