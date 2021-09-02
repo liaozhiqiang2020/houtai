@@ -84,7 +84,7 @@
       <el-table-column label="场地名" align="center" prop="placeName" />
       <el-table-column label="缴费时间" align="center" prop="payTime" />
 <!--      <el-table-column label="开票类型" align="center" prop="billingType" />-->
-<!--      <el-table-column label="缴费方式" align="center" prop="chargeType" />-->
+      <el-table-column label="缴费方式" align="center" prop="chargeType" :formatter="chargeTypeFormat"/>
 <!--      <el-table-column label="课程名" align="center" prop="courseId" />-->
 <!--      <el-table-column label="是否开票" align="center" prop="invoice" />-->
       <el-table-column label="缴费金额" align="center" prop="payMoney" />
@@ -125,11 +125,16 @@
 <!--            <el-option label="请选择字典生成" value="" />-->
 <!--          </el-select>-->
 <!--        </el-form-item>-->
-<!--        <el-form-item label="缴费方式" prop="chargeType">-->
-<!--          <el-select v-model="form.chargeType" placeholder="请选择缴费方式">-->
-<!--            <el-option label="请选择字典生成" value="" />-->
-<!--          </el-select>-->
-<!--        </el-form-item>-->
+        <el-form-item label="缴费方式" prop="chargeType">
+          <el-select v-model="form.chargeType" placeholder="请选择缴费方式">
+            <el-option
+              v-for="dict in chargeTypeOptions"
+              :key="parseInt(dict.dictValue)"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
+          </el-select>
+        </el-form-item>
 <!--        <el-form-item label="课程名" prop="courseId">-->
 <!--          <el-select v-model="form.courseId" placeholder="请选择课程名">-->
 <!--            <el-option label="请选择字典生成" value="" />-->
@@ -203,6 +208,8 @@ export default {
       total: 0,
       // 缴费信息表格数据
       tuitionList: [],
+      // 缴费方式字典
+      chargeTypeOptions: [],
       //场地选项
       placeOptions:[],
       studentOptions:[],
@@ -229,6 +236,9 @@ export default {
     this.getList();
     this.getPlaceOption();
     this.getStduentOption();
+    this.getDicts("tuition_charge_type").then(response => {
+      this.chargeTypeOptions = response.data;
+    });
   },
   methods: {
     /** 查询缴费信息列表 */
@@ -239,6 +249,10 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    // 缴费方式字典翻译
+    chargeTypeFormat(row, column) {
+      return this.selectDictLabel(this.chargeTypeOptions, row.chargeType);
     },
     //查询场地下拉列表
     getPlaceOption(){

@@ -15,6 +15,20 @@ export function login(username, password, code, uuid) {
   })
 }
 
+// 短信登录方法
+export function smsLogin(mobile,smsCode,uuid) {
+  const data = {
+    mobile,
+    smsCode,
+    uuid
+  }
+  return request({
+    url: '/sms/login',
+    method: 'post',
+    data: data
+  })
+}
+
 // 获取用户详细信息
 export function getInfo() {
   return request({
@@ -36,5 +50,19 @@ export function getCodeImg() {
   return request({
     url: '/captchaImage',
     method: 'get'
+  })
+}
+
+// 发送短信验证码
+export function getSmsCode(mobile) {
+
+  const data = {
+    mobile
+  }
+
+  return request({
+    url: '/sms/code',
+    method: 'post',
+    data:data
   })
 }

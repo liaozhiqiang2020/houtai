@@ -3,7 +3,12 @@
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="全职/兼职" prop="isFullTime">
         <el-select v-model="queryParams.isFullTime" placeholder="请选择全职/兼职" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+          <el-option
+            v-for="dict in isFullTimeOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="姓名" prop="name">
@@ -17,17 +22,17 @@
       </el-form-item>
       <el-form-item label="是否请假" prop="onLeave">
         <el-select v-model="queryParams.onLeave" placeholder="请选择是否请假" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+          <el-option
+            v-for="dict in onLeaveOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="场地" prop="placeId">
-        <el-select v-model="queryParams.placeId" placeholder="请选择">
-          <el-option
-            v-for="item in placeOptions"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
+        <el-select v-model="queryParams.placeId" placeholder="请选择场地" clearable size="small">
+          <el-option label="请选择字典生成" value="" />
         </el-select>
       </el-form-item>
       <el-form-item label="电话" prop="tel">
@@ -93,13 +98,17 @@
 
     <el-table v-loading="loading" :data="coachList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="姓名" align="center" prop="name" />
+      <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
+      <el-table-column label="是否离职" align="center" prop="onWork" :formatter="onWorkFormat" />
+      <el-table-column label="是否请假" align="center" prop="onLeave" :formatter="onLeaveFormat" />
+      <el-table-column label="离职日期" align="center" prop="leaveDate" :show-overflow-tooltip="true"/>
       <el-table-column label="入职日期" align="center" prop="entryDate" :show-overflow-tooltip="true"/>
       <el-table-column label="身份证号" align="center" prop="idCard" :show-overflow-tooltip="true"/>
-      <el-table-column label="全职/兼职" align="center" prop="isFullTime" />
-      <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="场地" align="center" prop="placeName" />
+      <el-table-column label="照片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>
+      <el-table-column label="全职/兼职" align="center" prop="isFullTime" :formatter="isFullTimeFormat" />
+      <el-table-column label="场地" align="center" prop="placeId" />
       <el-table-column label="简单描述" align="center" prop="remarks" :show-overflow-tooltip="true"/>
-      <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -142,7 +151,12 @@
         </el-form-item>
         <el-form-item label="全职/兼职" prop="isFullTime">
           <el-select v-model="form.isFullTime" placeholder="请选择全职/兼职">
-            <el-option label="请选择字典生成" value="" />
+            <el-option
+              v-for="dict in isFullTimeOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="离职日期" prop="leaveDate">
@@ -153,15 +167,25 @@
         </el-form-item>
         <el-form-item label="是否请假" prop="onLeave">
           <el-select v-model="form.onLeave" placeholder="请选择是否请假">
-            <el-option label="请选择字典生成" value="" />
+            <el-option
+              v-for="dict in onLeaveOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="是否离职" prop="onWork">
           <el-select v-model="form.onWork" placeholder="请选择是否离职">
-            <el-option label="请选择字典生成" value="" />
+            <el-option
+              v-for="dict in onWorkOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+            ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="场地" prop="placeId">
+        <el-form-item label="所属场地" prop="placeId">
           <el-select v-model="form.placeId" placeholder="请选择">
             <el-option
               v-for="item in placeOptions"
@@ -189,7 +213,6 @@
 <script>
 import { listCoach, getCoach, delCoach, addCoach, updateCoach, exportCoach } from "@/api/mobile/coach";
 import ImageUpload from '@/components/ImageUpload';
-import {placeList,studentList,courseList,coachList} from "@/api/mobile/student";
 
 export default {
   name: "Coach",
@@ -212,12 +235,16 @@ export default {
       total: 0,
       // 教练信息表格数据
       coachList: [],
-      //场地选项
-      placeOptions:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
+      // 全职/兼职字典
+      isFullTimeOptions: [],
+      // 是否请假字典
+      onLeaveOptions: [],
+      // 是否离职字典
+      onWorkOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -237,7 +264,15 @@ export default {
   },
   created() {
     this.getList();
-    this.getPlaceOption();
+    this.getDicts("coach_full_time").then(response => {
+      this.isFullTimeOptions = response.data;
+    });
+    this.getDicts("coach_leave").then(response => {
+      this.onLeaveOptions = response.data;
+    });
+    this.getDicts("coach_quit").then(response => {
+      this.onWorkOptions = response.data;
+    });
   },
   methods: {
     /** 查询教练信息列表 */
@@ -249,12 +284,17 @@ export default {
         this.loading = false;
       });
     },
-    //查询场地下拉列表
-    getPlaceOption(){
-      placeList().then(response => {
-        this.placeOptions = response;
-        this.loading = false;
-      });
+    // 全职/兼职字典翻译
+    isFullTimeFormat(row, column) {
+      return this.selectDictLabel(this.isFullTimeOptions, row.isFullTime);
+    },
+    // 是否请假字典翻译
+    onLeaveFormat(row, column) {
+      return this.selectDictLabel(this.onLeaveOptions, row.onLeave);
+    },
+    // 是否离职字典翻译
+    onWorkFormat(row, column) {
+      return this.selectDictLabel(this.onWorkOptions, row.onWork);
     },
     // 取消按钮
     cancel() {
@@ -283,7 +323,6 @@ export default {
     handleQuery() {
       this.queryParams.pageNum = 1;
       this.getList();
-      console.log(this.coachList);
     },
     /** 重置按钮操作 */
     resetQuery() {

@@ -1,23 +1,24 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="姓名" prop="name">
+      <el-form-item label="手机号" prop="tel">
         <el-input
-          v-model="queryParams.name"
-          placeholder="请输入姓名"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="手机号" prop="phone">
-        <el-input
-          v-model="queryParams.phone"
+          v-model="queryParams.tel"
           placeholder="请输入手机号"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="类型" prop="type">
+        <el-select v-model="queryParams.type" placeholder="请选择类型" clearable size="small">
+          <el-option
+            v-for="dict in typeOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -33,7 +34,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['mobile:up:add']"
+          v-hasPermi="['mobile:member:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +45,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['mobile:up:edit']"
+          v-hasPermi="['mobile:member:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -55,7 +56,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['mobile:up:remove']"
+          v-hasPermi="['mobile:member:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -65,22 +66,23 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['mobile:up:export']"
+          v-hasPermi="['mobile:member:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="upList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="memberList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="手机号" align="center" prop="phone" :show-overflow-tooltip="true"/>
-      <el-table-column label="年龄" align="center" prop="age" />
-      <el-table-column label="性别" align="center" prop="sex" :formatter="sexTypeFormat"/>
-      <el-table-column label="报名时间" align="center" prop="signTime" :show-overflow-tooltip="true"/>
-      <el-table-column label="学校" align="center" prop="school" :show-overflow-tooltip="true"/>
-      <el-table-column label="招生老师电话" align="center" prop="xstel" :show-overflow-tooltip="true"/>
-      <el-table-column label="备注" align="center" prop="remarks" :show-overflow-tooltip="true"/>
+      <el-table-column label="名字" align="center" prop="name" />
+      <el-table-column label="开始时间" align="center" prop="startTime" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.startTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="结束时间" align="center" prop="endTime" />
+      <el-table-column label="手机号" align="center" prop="tel" />
+      <el-table-column label="类型" align="center" prop="type" :formatter="typeFormat" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -88,14 +90,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mobile:up:edit']"
+            v-hasPermi="['mobile:member:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['mobile:up:remove']"
+            v-hasPermi="['mobile:member:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -109,26 +111,32 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改学员报名对话框 -->
+    <!-- 添加或修改会员对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="form.name" placeholder="请输入姓名" />
+        <el-form-item label="名字" prop="name">
+          <el-input v-model="form.name" placeholder="请输入名字" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号" />
+        <el-form-item label="开始时间" prop="startTime">
+          <el-date-picker clearable size="small"
+            v-model="form.startTime"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择开始时间">
+          </el-date-picker>
         </el-form-item>
-        <el-form-item label="年龄" prop="age">
-          <el-input v-model="form.age" placeholder="请输入年龄" />
+        <el-form-item label="手机号" prop="tel">
+          <el-input v-model="form.tel" placeholder="请输入手机号" />
         </el-form-item>
-        <el-form-item label="性别" prop="sex">
-          <el-input v-model="form.sex" placeholder="请输入性别" />
-        </el-form-item>
-        <el-form-item label="学校" prop="school">
-          <el-input v-model="form.school" placeholder="请输入学校" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remarks">
-          <el-input v-model="form.remarks" placeholder="请输入备注" />
+        <el-form-item label="类型" prop="type">
+          <el-select v-model="form.type" placeholder="请选择类型">
+            <el-option
+              v-for="dict in typeOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+            ></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -140,10 +148,10 @@
 </template>
 
 <script>
-import { listUp, getUp, delUp, addUp, updateUp, exportUp } from "@/api/mobile/up";
+import { listMember, getMember, delMember, addMember, updateMember, exportMember } from "@/api/mobile/member";
 
 export default {
-  name: "Up",
+  name: "Member",
   components: {
   },
   data() {
@@ -160,24 +168,23 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 学员报名表格数据
-      upList: [],
-      //数据字典性别
-      sexOptions:[],
+      // 会员表格数据
+      memberList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
+      // 类型字典
+      typeOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         name: null,
-        phone: null,
-        age: null,
-        sex: null,
-        school: null,
-        remarks: null
+        startTime: null,
+        tel: null,
+        type: null,
+        wxId: null
       },
       // 表单参数
       form: {},
@@ -188,23 +195,23 @@ export default {
   },
   created() {
     this.getList();
-    this.getDicts("sign_up_sex_type").then(response => {
-      this.sexOptions = response.data;
+    this.getDicts("member_type").then(response => {
+      this.typeOptions = response.data;
     });
   },
   methods: {
-    /** 查询学员报名列表 */
+    /** 查询会员列表 */
     getList() {
       this.loading = true;
-      listUp(this.queryParams).then(response => {
-        this.upList = response.rows;
+      listMember(this.queryParams).then(response => {
+        this.memberList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
     },
-    // 收租方式字典翻译
-    sexTypeFormat(row, column) {
-      return this.selectDictLabel(this.sexOptions, row.sex);
+    // 类型字典翻译
+    typeFormat(row, column) {
+      return this.selectDictLabel(this.typeOptions, row.type);
     },
     // 取消按钮
     cancel() {
@@ -215,12 +222,12 @@ export default {
     reset() {
       this.form = {
         id: null,
+        endTime: null,
         name: null,
-        phone: null,
-        age: null,
-        sex: null,
-        school: null,
-        remarks: null
+        startTime: null,
+        tel: null,
+        type: null,
+        wxId: null
       };
       this.resetForm("form");
     },
@@ -244,16 +251,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加学员报名";
+      this.title = "添加会员";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getUp(id).then(response => {
+      getMember(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改学员报名";
+        this.title = "修改会员";
       });
     },
     /** 提交按钮 */
@@ -261,13 +268,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateUp(this.form).then(response => {
+            updateMember(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addUp(this.form).then(response => {
+            addMember(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -279,12 +286,12 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$confirm('是否确认删除学员报名编号为"' + ids + '"的数据项?', "警告", {
+      this.$confirm('是否确认删除会员编号为"' + ids + '"的数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return delUp(ids);
+          return delMember(ids);
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
@@ -293,12 +300,12 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有学员报名数据项?', "警告", {
+      this.$confirm('是否确认导出所有会员数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return exportUp(queryParams);
+          return exportMember(queryParams);
         }).then(response => {
           this.download(response.msg);
         })

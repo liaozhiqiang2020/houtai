@@ -125,6 +125,10 @@
       <el-table-column label="学号" align="center" prop="sn" :show-overflow-tooltip="true"/>
       <el-table-column label="身份证号" align="center" prop="id_card" :show-overflow-tooltip="true"/>
       <el-table-column label="是否成人" align="center" prop="adult" :formatter="adultFormat" :show-overflow-tooltip="true"/>
+      <el-table-column label="招生人" align="center" prop="sale_name"  :show-overflow-tooltip="true"/>
+      <el-table-column label="招生人电话" align="center" prop="sale_tel"  :show-overflow-tooltip="true"/>
+      <el-table-column label="最后抽奖时间" align="center" prop="last_draw_date"  :show-overflow-tooltip="true"/>
+      <el-table-column label="总抽奖次数" align="center" prop="draw_count"  :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -216,8 +220,11 @@
         <el-form-item label="剩余金额" prop="money">
           <el-input v-model="form.money" placeholder="请输入剩余金额" />
         </el-form-item>
-        <el-form-item label="销售名" prop="saleName">
-          <el-input v-model="form.saleName" placeholder="请输入销售名" />
+        <el-form-item label="招生人" prop="saleName">
+          <el-input v-model="form.saleName" placeholder="请输入招生人" />
+        </el-form-item>
+        <el-form-item label="招生人电话" prop="saleTel">
+          <el-input v-model="form.saleTel" placeholder="请输入招生人电话" />
         </el-form-item>
         <el-form-item label="单节价格" prop="unitPrice">
           <el-input v-model="form.unitPrice" placeholder="请输入单节价格" />
@@ -272,6 +279,7 @@ export default {
         placeId: null,
         tel: null,
         saleName: null,
+        saleTel:null
       },
       // 表单参数
       form: {},
@@ -338,6 +346,7 @@ export default {
         idCard: null,
         money: null,
         saleName: null,
+        saleTel:null,
         unitPrice: null,
         placeOptions:[]
       };

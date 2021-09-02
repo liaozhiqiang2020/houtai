@@ -1,23 +1,51 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="姓名" prop="name">
+      <el-form-item label="手机号" prop="tel">
         <el-input
-          v-model="queryParams.name"
-          placeholder="请输入姓名"
+          v-model="queryParams.tel"
+          placeholder="请输入中奖人手机号"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="手机号" prop="phone">
+      <el-form-item label="中奖时间" prop="drawDate">
+        <el-date-picker clearable size="small"
+          v-model="queryParams.drawDate"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="选择中奖时间">
+        </el-date-picker>
+      </el-form-item>
+      <el-form-item label="奖品" prop="drawPrize">
         <el-input
-          v-model="queryParams.phone"
-          placeholder="请输入手机号"
+          v-model="queryParams.drawPrize"
+          placeholder="请输入奖品"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="几等奖" prop="drawAwards">
+        <el-select v-model="queryParams.drawAwards" placeholder="请选择几等奖" clearable size="small">
+          <el-option
+            v-for="dict in drawAwardsOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="是否兑奖" prop="isCashPrize">
+        <el-select v-model="queryParams.isCashPrize" placeholder="请选择是否兑奖" clearable size="small">
+          <el-option
+            v-for="dict in isCashPrizeOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -33,7 +61,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['mobile:up:add']"
+          v-hasPermi="['mobile:result:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +72,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['mobile:up:edit']"
+          v-hasPermi="['mobile:result:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -55,7 +83,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['mobile:up:remove']"
+          v-hasPermi="['mobile:result:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -65,22 +93,24 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['mobile:up:export']"
+          v-hasPermi="['mobile:result:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="upList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="resultList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="姓名" align="center" prop="name" />
-      <el-table-column label="手机号" align="center" prop="phone" :show-overflow-tooltip="true"/>
-      <el-table-column label="年龄" align="center" prop="age" />
-      <el-table-column label="性别" align="center" prop="sex" :formatter="sexTypeFormat"/>
-      <el-table-column label="报名时间" align="center" prop="signTime" :show-overflow-tooltip="true"/>
-      <el-table-column label="学校" align="center" prop="school" :show-overflow-tooltip="true"/>
-      <el-table-column label="招生老师电话" align="center" prop="xstel" :show-overflow-tooltip="true"/>
-      <el-table-column label="备注" align="center" prop="remarks" :show-overflow-tooltip="true"/>
+      <el-table-column label="中奖人手机号" align="center" prop="tel" :show-overflow-tooltip="true"/>
+      <el-table-column label="中奖时间" align="center" prop="drawDate" width="180" :show-overflow-tooltip="true">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.drawDate, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="奖品" align="center" prop="drawPrize" :show-overflow-tooltip="true"/>
+      <el-table-column label="几等奖" align="center" prop="drawAwards" :formatter="drawAwardsFormat" />
+      <el-table-column label="是否兑奖" align="center" prop="isCashPrize" :formatter="isCashPrizeFormat" />
+      <el-table-column label="兑奖操作人" align="center" prop="cashPrizePeople" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -88,14 +118,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['mobile:up:edit']"
+            v-hasPermi="['mobile:result:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['mobile:up:remove']"
+            v-hasPermi="['mobile:result:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -109,26 +139,45 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改学员报名对话框 -->
+    <!-- 添加或修改抽奖结果对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="form.name" placeholder="请输入姓名" />
+        <el-form-item label="中奖人手机号" prop="tel">
+          <el-input v-model="form.tel" placeholder="请输入中奖人手机号" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入手机号" />
+        <el-form-item label="中奖时间" prop="drawDate">
+          <el-date-picker clearable size="small"
+            v-model="form.drawDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择中奖时间">
+          </el-date-picker>
         </el-form-item>
-        <el-form-item label="年龄" prop="age">
-          <el-input v-model="form.age" placeholder="请输入年龄" />
+        <el-form-item label="奖品" prop="drawPrize">
+          <el-input v-model="form.drawPrize" placeholder="请输入奖品" />
         </el-form-item>
-        <el-form-item label="性别" prop="sex">
-          <el-input v-model="form.sex" placeholder="请输入性别" />
+        <el-form-item label="几等奖" prop="drawAwards">
+          <el-select v-model="form.drawAwards" placeholder="请选择几等奖">
+            <el-option
+              v-for="dict in drawAwardsOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="学校" prop="school">
-          <el-input v-model="form.school" placeholder="请输入学校" />
+        <el-form-item label="是否兑奖(0 未兑奖，1已兑奖)" prop="isCashPrize">
+          <el-select v-model="form.isCashPrize" placeholder="请选择是否兑奖(0 未兑奖，1已兑奖)">
+            <el-option
+              v-for="dict in isCashPrizeOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="备注" prop="remarks">
-          <el-input v-model="form.remarks" placeholder="请输入备注" />
+        <el-form-item label="兑奖操作人" prop="cashPrizePeople">
+          <el-input v-model="form.cashPrizePeople" placeholder="请输入兑奖操作人" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -140,10 +189,10 @@
 </template>
 
 <script>
-import { listUp, getUp, delUp, addUp, updateUp, exportUp } from "@/api/mobile/up";
+import { listResult, getResult, delResult, addResult, updateResult, exportResult } from "@/api/mobile/result";
 
 export default {
-  name: "Up",
+  name: "Result",
   components: {
   },
   data() {
@@ -160,24 +209,26 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 学员报名表格数据
-      upList: [],
-      //数据字典性别
-      sexOptions:[],
+      // 抽奖结果表格数据
+      resultList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
+      // 几等奖字典
+      drawAwardsOptions: [],
+      // 是否兑奖(0 未兑奖，1已兑奖)字典
+      isCashPrizeOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        name: null,
-        phone: null,
-        age: null,
-        sex: null,
-        school: null,
-        remarks: null
+        tel: null,
+        drawDate: null,
+        drawPrize: null,
+        drawAwards: null,
+        isCashPrize: null,
+        cashPrizePeople: null
       },
       // 表单参数
       form: {},
@@ -188,23 +239,30 @@ export default {
   },
   created() {
     this.getList();
-    this.getDicts("sign_up_sex_type").then(response => {
-      this.sexOptions = response.data;
+    this.getDicts("draw_type").then(response => {
+      this.drawAwardsOptions = response.data;
+    });
+    this.getDicts("is_draw_cash").then(response => {
+      this.isCashPrizeOptions = response.data;
     });
   },
   methods: {
-    /** 查询学员报名列表 */
+    /** 查询抽奖结果列表 */
     getList() {
       this.loading = true;
-      listUp(this.queryParams).then(response => {
-        this.upList = response.rows;
+      listResult(this.queryParams).then(response => {
+        this.resultList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
     },
-    // 收租方式字典翻译
-    sexTypeFormat(row, column) {
-      return this.selectDictLabel(this.sexOptions, row.sex);
+    // 几等奖字典翻译
+    drawAwardsFormat(row, column) {
+      return this.selectDictLabel(this.drawAwardsOptions, row.drawAwards);
+    },
+    // 是否兑奖(0 未兑奖，1已兑奖)字典翻译
+    isCashPrizeFormat(row, column) {
+      return this.selectDictLabel(this.isCashPrizeOptions, row.isCashPrize);
     },
     // 取消按钮
     cancel() {
@@ -215,12 +273,12 @@ export default {
     reset() {
       this.form = {
         id: null,
-        name: null,
-        phone: null,
-        age: null,
-        sex: null,
-        school: null,
-        remarks: null
+        tel: null,
+        drawDate: null,
+        drawPrize: null,
+        drawAwards: null,
+        isCashPrize: null,
+        cashPrizePeople: null
       };
       this.resetForm("form");
     },
@@ -244,16 +302,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加学员报名";
+      this.title = "添加抽奖结果";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getUp(id).then(response => {
+      getResult(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改学员报名";
+        this.title = "修改抽奖结果";
       });
     },
     /** 提交按钮 */
@@ -261,13 +319,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateUp(this.form).then(response => {
+            updateResult(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addUp(this.form).then(response => {
+            addResult(this.form).then(response => {
               this.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -279,12 +337,12 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$confirm('是否确认删除学员报名编号为"' + ids + '"的数据项?', "警告", {
+      this.$confirm('是否确认删除抽奖结果编号为"' + ids + '"的数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return delUp(ids);
+          return delResult(ids);
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
@@ -293,12 +351,12 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有学员报名数据项?', "警告", {
+      this.$confirm('是否确认导出所有抽奖结果数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return exportUp(queryParams);
+          return exportResult(queryParams);
         }).then(response => {
           this.download(response.msg);
         })
