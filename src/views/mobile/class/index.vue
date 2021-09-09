@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="课程" prop="courseId">
-        <el-select v-model="queryParams.courseId" placeholder="请选择">
+        <el-select v-model="queryParams.courseId" placeholder="请选择" clearable>
           <el-option
             v-for="item in courseOptions"
             :key="item.id"
@@ -11,8 +11,19 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="周期" prop="week">
+        <el-select v-model="queryParams.week" placeholder="请选择" clearable>
+          <el-option
+            v-for="item in weekOptions"
+            :key="item.name"
+            :label="item.name"
+            :value="item.name"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="场地" prop="placeId">
-        <el-select v-model="queryParams.placeId" placeholder="请选择">
+        <el-select v-model="queryParams.placeId" placeholder="请选择" clearable>
           <el-option
             v-for="item in placeOptions"
             :key="item.id"
@@ -22,7 +33,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="学员" prop="studentId">
-        <el-select v-model="queryParams.studentId" placeholder="请选择学员">
+        <el-select v-model="queryParams.studentId" placeholder="请选择学员" clearable>
           <el-option
             v-for="item in studentOptions"
             :key="item.id"
@@ -32,7 +43,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="教练" prop="coachId">
-        <el-select v-model="queryParams.coachId" placeholder="请选择">
+        <el-select v-model="queryParams.coachId" placeholder="请选择" clearable>
           <el-option
             v-for="item in coachOptions"
             :key="item.id"
@@ -133,8 +144,18 @@
     <!-- 添加或修改选课管理对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+<!--        <el-form-item label="周期" prop="week">-->
+<!--          <el-input v-model="form.week" placeholder="请输入周期" />-->
+<!--        </el-form-item>-->
         <el-form-item label="周期" prop="week">
-          <el-input v-model="form.week" placeholder="请输入周期" />
+          <el-select v-model="form.week" placeholder="请选择" clearable>
+            <el-option
+              v-for="item in weekOptions"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="开始时间" prop="startTime">
           <el-input v-model="form.startTime" placeholder="请输入开始时间" />
@@ -224,6 +245,15 @@ export default {
       courseOptions:[],
       //教练选项
       coachOptions:[],
+      weekOptions:[
+        {id:1,name:'周一'},
+        {id:2,name:'周二'},
+        {id:3,name:'周三'},
+        {id:4,name:'周四'},
+        {id:5,name:'周五'},
+        {id:6,name:'周六'},
+        {id:7,name:'周日'},
+      ],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
