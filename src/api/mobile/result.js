@@ -43,6 +43,13 @@ export function delResult(id) {
   })
 }
 
+export function duijiang(id) {
+  return request({
+    url: '/mobile/result/inDrawResult/' + id,
+    method: 'post'
+  })
+}
+
 // 导出抽奖结果
 export function exportResult(query) {
   return request({

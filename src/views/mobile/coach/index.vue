@@ -108,6 +108,7 @@
       <el-table-column label="照片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>
       <el-table-column label="全职/兼职" align="center" prop="isFullTime" :formatter="isFullTimeFormat" />
       <el-table-column label="场地" align="center" prop="placeId" />
+      <el-table-column label="菜单权限" align="center" prop="menuRole" :formatter="menuRoleFormat"/>
       <el-table-column label="简单描述" align="center" prop="remarks" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -148,6 +149,16 @@
         </el-form-item>
         <el-form-item label="照片">
           <imageUpload v-model="form.imgUrl"/>
+        </el-form-item>
+        <el-form-item label="小程序菜单权限" prop="isFullTime">
+          <el-select v-model="form.menuRole" placeholder="请选择小程序菜单权限">
+            <el-option
+              v-for="dict in menuRoleFormatOptions"
+              :key="parseInt(dict.dictValue)"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="全职/兼职" prop="isFullTime">
           <el-select v-model="form.isFullTime" placeholder="请选择全职/兼职">
@@ -241,6 +252,8 @@ export default {
       open: false,
       // 全职/兼职字典
       isFullTimeOptions: [],
+      //菜单权限
+      menuRoleFormatOptions:[],
       // 是否请假字典
       onLeaveOptions: [],
       // 是否离职字典
@@ -253,7 +266,8 @@ export default {
         name: null,
         onLeave: null,
         placeId: null,
-        tel: null
+        tel: null,
+        menuRole:null
       },
       // 表单参数
       form: {},
@@ -264,6 +278,9 @@ export default {
   },
   created() {
     this.getList();
+    this.getDicts("menu_btn_type").then(response => {
+      this.menuRoleFormatOptions = response.data;
+    });
     this.getDicts("coach_full_time").then(response => {
       this.isFullTimeOptions = response.data;
     });
@@ -283,6 +300,10 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    //菜单权限
+    menuRoleFormat(row, column){
+      return this.selectDictLabel(this.menuRoleFormatOptions, row.menuRole);
     },
     // 全职/兼职字典翻译
     isFullTimeFormat(row, column) {

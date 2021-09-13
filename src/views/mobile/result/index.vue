@@ -10,6 +10,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="学员" prop="studentId">
+        <el-select v-model="queryParams.studentId" placeholder="请选择学员">
+          <el-option
+            v-for="item in studentOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="中奖时间" prop="drawDate">
         <el-date-picker clearable size="small"
           v-model="queryParams.drawDate"
@@ -101,7 +111,8 @@
 
     <el-table v-loading="loading" :data="resultList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="中奖人手机号" align="center" prop="tel" :show-overflow-tooltip="true"/>
+      <el-table-column label="中奖人" align="center" prop="studentName" :show-overflow-tooltip="true"/>
+      <el-table-column label="手机号" align="center" prop="tel" :show-overflow-tooltip="true"/>
       <el-table-column label="中奖时间" align="center" prop="drawDate" width="180" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.drawDate, '{y}-{m}-{d}') }}</span>
@@ -127,6 +138,15 @@
             @click="handleDelete(scope.row)"
             v-hasPermi="['mobile:result:remove']"
           >删除</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-delete"
+            @click="duijiang2(scope.row)"
+            v-hasPermi="['mobile:result:edit']"
+          >兑奖
+          </el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -189,7 +209,8 @@
 </template>
 
 <script>
-import { listResult, getResult, delResult, addResult, updateResult, exportResult } from "@/api/mobile/result";
+import { listResult, getResult, delResult, addResult, updateResult,duijiang, exportResult } from "@/api/mobile/result";
+import {placeList,studentList,courseList,coachList} from "@/api/mobile/student";
 
 export default {
   name: "Result",
@@ -217,6 +238,8 @@ export default {
       open: false,
       // 几等奖字典
       drawAwardsOptions: [],
+      //学员选项
+      studentOptions:[],
       // 是否兑奖(0 未兑奖，1已兑奖)字典
       isCashPrizeOptions: [],
       // 查询参数
@@ -239,6 +262,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getStduentOption();
     this.getDicts("draw_type").then(response => {
       this.drawAwardsOptions = response.data;
     });
@@ -253,6 +277,13 @@ export default {
       listResult(this.queryParams).then(response => {
         this.resultList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询学员下拉列表
+    getStduentOption(){
+      studentList().then(response => {
+        this.studentOptions = response;
         this.loading = false;
       });
     },
@@ -347,6 +378,22 @@ export default {
           this.getList();
           this.msgSuccess("删除成功");
         })
+    },
+    /** 兑奖按钮操作 */
+    duijiang2(row) {
+      const ids = row.id || this.ids;
+      console.log(ids);
+      this.$confirm('是否确认兑奖', "提醒", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+
+        return duijiang(ids);
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("兑奖成功");
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
