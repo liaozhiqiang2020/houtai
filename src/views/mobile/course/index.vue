@@ -78,6 +78,7 @@
       <el-table-column label="单节价格" align="center" prop="money" />
       <el-table-column label="课程名" align="center" prop="name" />
       <el-table-column label="场地名" align="center" prop="placeName" />
+      <el-table-column label="类型" align="center" prop="type" :formatter="chargeTypeFormat"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -128,6 +129,16 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-select v-model="form.type" placeholder="请选择">
+            <el-option
+              v-for="dict in chargeTypeOptions"
+              :key="parseInt(dict.dictValue)"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -161,6 +172,8 @@ export default {
       total: 0,
       // 课程信息表格数据
       courseList: [],
+      // 缴费方式字典
+      chargeTypeOptions: [],
       //场地选项
       placeOptions:[],
       // 弹出层标题
@@ -184,6 +197,9 @@ export default {
   created() {
     this.getList();
     this.getPlaceOption();
+    this.getDicts("student_charge_type").then(response => {
+      this.chargeTypeOptions = response.data;
+    });
   },
   methods: {
     /** 查询课程信息列表 */
@@ -194,6 +210,10 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    // 缴费方式字典翻译
+    chargeTypeFormat(row, column) {
+      return this.selectDictLabel(this.chargeTypeOptions, row.type);
     },
     //查询场地下拉列表
     getPlaceOption(){
