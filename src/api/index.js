@@ -31,3 +31,18 @@ export function getLastMonthInComeJs() {
   })
 }
 
+//查询全年所有月份收入
+export function getAllMonthInCome() {
+  return request({
+    url: '/mobile/sign/getAllMonthInCome',
+    method: 'get'
+  })
+}
+
+//查询本月每日收入
+export function getAllDayInCome() {
+  return request({
+    url: '/mobile/sign/getAllDayInCome',
+    method: 'get'
+  })
+}
