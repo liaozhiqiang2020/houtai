@@ -196,7 +196,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="报名时间" prop="registrTime">
-          <el-input v-model="form.registrTime" placeholder="请输入报名时间" />
+          <el-date-picker clearable size="small"
+                          v-model="form.registrTime"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="选择报名时间">
+          </el-date-picker>
         </el-form-item>
         <el-form-item label="是否成人" prop="adult">
           <el-select v-model="form.adult" placeholder="请选择是否成人">

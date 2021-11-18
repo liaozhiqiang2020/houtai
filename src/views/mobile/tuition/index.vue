@@ -170,7 +170,12 @@
           <el-input v-model="form.payMoney" placeholder="请输入缴费金额" />
         </el-form-item>
         <el-form-item label="缴费时间" prop="payTime">
-          <el-input v-model="form.payTime" placeholder="请输入缴费时间" />
+          <el-date-picker clearable size="small"
+                          v-model="form.payTime"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="选择缴费时间">
+          </el-date-picker>
         </el-form-item>
 
         <el-form-item label="备注" prop="description">
