@@ -110,13 +110,14 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange"
+              :row-class-name="tableRowClassName">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="姓名" align="center" prop="name" :show-overflow-tooltip="true"/>
       <el-table-column label="所属场地" align="center" prop="place_name" :show-overflow-tooltip="true"/>
       <el-table-column label="家长电话" align="center" prop="parent_tel" :show-overflow-tooltip="true"/>
       <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
-      <el-table-column label="剩余金额" align="center" prop="money" :show-overflow-tooltip="true"/>
+      <el-table-column label="剩余金额" align="center" prop="money" :show-overflow-tooltip="true" />
       <el-table-column label="年龄" align="center" prop="age" :show-overflow-tooltip="true"/>
       <el-table-column label="剩余课时" align="center" prop="class_hours" :show-overflow-tooltip="true"/>
       <el-table-column label="缴费方式" align="center" prop="charge_type" :formatter="chargeTypeFormat"/>
@@ -329,6 +330,12 @@ export default {
     adultFormat(row, column) {
       return this.selectDictLabel(this.adultOptions, row.adult);
     },
+    tableRowClassName(row,rowIndex){
+      if (row.row.money<200) {
+        return 'red';
+      }
+      return '';
+    },
     // 取消按钮
     cancel() {
       this.open = false;
@@ -443,3 +450,13 @@ export default {
   }
 };
 </script>
+
+<style>
+  .el-table .red{
+    background-color: pink;
+  }
+
+  /*.el-table tbody tr {*/
+  /*  pointer-events:none;*/
+  /*}*/
+</style>
