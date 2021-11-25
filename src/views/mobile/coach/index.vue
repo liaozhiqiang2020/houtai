@@ -31,8 +31,13 @@
         </el-select>
       </el-form-item>
       <el-form-item label="场地" prop="placeId">
-        <el-select v-model="queryParams.placeId" placeholder="请选择场地" clearable size="small">
-          <el-option label="请选择字典生成" value="" />
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="电话" prop="tel">
@@ -223,6 +228,7 @@
 
 <script>
 import { listCoach, getCoach, delCoach, addCoach, updateCoach, exportCoach } from "@/api/mobile/coach";
+import {placeList} from "@/api/mobile/student";
 import ImageUpload from '@/components/ImageUpload';
 
 export default {
@@ -252,6 +258,7 @@ export default {
       open: false,
       // 全职/兼职字典
       isFullTimeOptions: [],
+      placeOptions:[],
       //菜单权限
       menuRoleFormatOptions:[],
       // 是否请假字典
@@ -278,6 +285,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
     this.getDicts("menu_btn_type").then(response => {
       this.menuRoleFormatOptions = response.data;
     });
@@ -298,6 +306,13 @@ export default {
       listCoach(this.queryParams).then(response => {
         this.coachList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },
