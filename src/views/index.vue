@@ -9,7 +9,7 @@
             </div>
             <div class="card-panel-description">
               <div class="card-panel-text">
-                今日收入
+                今日结转
               </div>
               <count-to :start-val="0" :end-val="todayIncome" :duration="2000" class="card-panel-num"/>
             </div>
@@ -22,7 +22,7 @@
             </div>
             <div class="card-panel-description">
               <div class="card-panel-text">
-                昨日收入
+                昨日结转
               </div>
               <count-to :start-val="0" :end-val="lastdayIncome" :duration="2000" class="card-panel-num"/>
             </div>
@@ -35,7 +35,7 @@
             </div>
             <div class="card-panel-description">
               <div class="card-panel-text">
-                本月收入
+                本月结转
               </div>
               <count-to :start-val="0" :end-val="monthIncome" :duration="2000" class="card-panel-num"/>
             </div>
@@ -48,7 +48,7 @@
             </div>
             <div class="card-panel-description">
               <div class="card-panel-text">
-                上月收入
+                上月结转
               </div>
               <count-to :start-val="0" :end-val="lastMonthIncome" :duration="2000" class="card-panel-num"/>
             </div>
@@ -159,7 +159,7 @@ export default {
         animationDuration: 3000,
         animationDurationUpdate: 500,
         title:{
-          text:"今年收入统计",
+          text:"今年结转统计",
           left:"center"
         },
         xAxis: {
@@ -182,7 +182,7 @@ export default {
         },
         yAxis: {
           type: "value",
-          name: "收入",
+          name: "结转",
           nameLocation: "middle",
           scale: true,
           nameGap: 50,
@@ -238,7 +238,7 @@ export default {
         animationDuration: 3000,
         animationDurationUpdate: 500,
         title:{
-          text:"当月收入统计",
+          text:"当月结转统计",
           left:"center"
         },
         xAxis: {
@@ -258,7 +258,7 @@ export default {
         },
         yAxis: {
           type: "value",
-          name: "收入",
+          name: "结转",
           nameLocation: "middle",
           scale: true,
           nameGap: 50,
