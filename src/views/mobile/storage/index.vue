@@ -94,7 +94,12 @@
       <el-table-column label="单价" align="center" prop="price" />
       <el-table-column label="库存量" align="center" prop="inventory" />
       <el-table-column label="商品描述" align="center" prop="remark" :show-overflow-tooltip="true"/>
-      <el-table-column label="图片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>
+<!--      <el-table-column label="图片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>-->
+      <el-table-column label="图片" align="center" prop="imgUrl" width="100">
+        <template slot-scope="scope">
+          <image-preview :src="scope.row.imgUrl" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed- width">
         <template slot-scope="scope">
           <el-button

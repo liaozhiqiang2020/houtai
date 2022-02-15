@@ -34,6 +34,14 @@ export function updateStudent(data) {
     data: data
   })
 }
+// 修改学员状态
+export function updateStudentStatus(id, study_status) {
+  return request({
+    url: '/mobile/student/updateStudentStatus/' + id+'/'+study_status,
+    method: 'post',
+    data: []
+  })
+}
 
 // 删除学员
 export function delStudent(id) {
@@ -83,6 +91,15 @@ export function courseList(query) {
 export function coachList(query) {
   return request({
     url: '/mobile/coach/queryCoach',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询销售下拉列表
+export function queryCoachSale(query) {
+  return request({
+    url: '/mobile/coach/queryCoachSale',
     method: 'get',
     params: query
   })

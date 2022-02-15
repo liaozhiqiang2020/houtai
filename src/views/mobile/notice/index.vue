@@ -127,9 +127,7 @@
         <el-form-item label="标题" prop="nickName">
           <el-input v-model="form.nickName" placeholder="请输入标题" />
         </el-form-item>
-        <el-form-item label="内容" prop="reward">
-          <el-input type="textarea" :rows="2" v-model="form.reward" placeholder="请输入内容" />
-        </el-form-item>
+
         <el-form-item label="类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">
             <el-option
@@ -149,6 +147,10 @@
               :value="item.id"
             ></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="内容" prop="reward">
+          <editor v-model="form.reward" :min-height="192"/>
+          <!--          <el-input type="textarea" :rows="2" v-model="form.reward" placeholder="请输入内容" />-->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

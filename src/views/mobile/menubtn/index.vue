@@ -85,7 +85,12 @@
     <el-table v-loading="loading" :data="menubtnList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="按钮名称" align="center" prop="name" />
-      <el-table-column label="按钮图片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>
+<!--      <el-table-column label="按钮图片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>-->
+      <el-table-column label="图片" align="center" prop="imgUrl" width="100">
+        <template slot-scope="scope">
+          <image-preview :src="scope.row.imgUrl" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="菜单角色" align="center" prop="menuRole" :formatter="menuRoleFormat" />
       <el-table-column label="跳转页面" align="center" prop="targetUrl" :show-overflow-tooltip="true"/>
       <el-table-column label="是否禁用" align="center" prop="useFlag" :formatter="useFlagFormat"/>

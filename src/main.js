@@ -20,6 +20,10 @@ import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, 
 import Pagination from "@/components/Pagination";
 // 自定义表格工具扩展
 import RightToolbar from "@/components/RightToolbar";
+// 富文本组件
+import Editor from "@/components/Editor"
+// 图片预览组件
+import ImagePreview from "@/components/ImagePreview"
 import echarts from 'echarts';
 
 // 全局方法挂载
@@ -49,6 +53,8 @@ Vue.prototype.msgInfo = function (msg) {
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
 Vue.component('RightToolbar', RightToolbar)
+Vue.component('Editor', Editor)
+Vue.component('ImagePreview', ImagePreview)
 
 Vue.use(permission)
 

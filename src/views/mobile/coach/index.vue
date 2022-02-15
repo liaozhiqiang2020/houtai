@@ -110,9 +110,14 @@
       <el-table-column label="离职日期" align="center" prop="leaveDate" :show-overflow-tooltip="true"/>
       <el-table-column label="入职日期" align="center" prop="entryDate" :show-overflow-tooltip="true"/>
       <el-table-column label="身份证号" align="center" prop="idCard" :show-overflow-tooltip="true"/>
-      <el-table-column label="照片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>
+      <el-table-column label="图片" align="center" prop="imgUrl" width="100">
+        <template slot-scope="scope">
+          <image-preview :src="scope.row.imgUrl" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
+<!--      <el-table-column label="照片" align="center" prop="imgUrl" :show-overflow-tooltip="true"/>-->
       <el-table-column label="全职/兼职" align="center" prop="isFullTime" :formatter="isFullTimeFormat" />
-      <el-table-column label="场地" align="center" prop="placeId" />
+      <el-table-column label="场地" align="center" prop="placeName" :formatter="menuRoleFormat"/>
       <el-table-column label="菜单权限" align="center" prop="menuRole" :formatter="menuRoleFormat"/>
       <el-table-column label="简单描述" align="center" prop="remarks" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
