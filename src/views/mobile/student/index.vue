@@ -254,8 +254,18 @@
         <el-form-item label="电话" prop="tel">
           <el-input v-model="form.tel" placeholder="请输入电话" />
         </el-form-item>
-        <el-form-item label="积分" prop="tel">
+        <el-form-item label="积分" prop="integral">
           <el-input v-model="form.integral" placeholder="请输入积分" />
+        </el-form-item>
+        <el-form-item label="成就"  prop="achievement">
+          <el-select v-model="form.achievement" multiple placeholder="请选择">
+            <el-option
+              v-for="item in achievementOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="身份证号" prop="idCard">
           <el-input v-model="form.idCard" placeholder="请输入身份证号" />
@@ -281,6 +291,7 @@
 
 <script>
 import { listStudent, getStudent, delStudent, addStudent, updateStudent, exportStudent ,placeList,queryCoachSale,updateStudentStatus} from "@/api/mobile/student";
+import {listAchievementSelect} from "@/api/mobile/achievement"
 
 export default {
   name: "Student",
@@ -311,6 +322,8 @@ export default {
       coachSaleOptions:[],
       //当前状态
       studyStatusOptions:[],
+      //成就列表
+      achievementOptions:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -327,7 +340,8 @@ export default {
         saleTel:null,
         saleId:null,
         studyStatus:null,
-        integral:null
+        integral:null,
+        achievement:null
       },
       // 表单参数
       form: {},
@@ -340,6 +354,7 @@ export default {
     this.getList();
     this.getPlaceOption();
     this.getCoachSaleOption();
+    this.getAchievementOption();
     this.getDicts("student_charge_type").then(response => {
       this.chargeTypeOptions = response.data;
     });
@@ -372,6 +387,13 @@ export default {
     getCoachSaleOption(){
       queryCoachSale().then(response => {
         this.coachSaleOptions = response;
+        this.loading = false;
+      });
+    },
+    //查询成就下拉列表
+    getAchievementOption(){
+      listAchievementSelect().then(response => {
+        this.achievementOptions = response;
         this.loading = false;
       });
     },
@@ -433,7 +455,8 @@ export default {
         saleTel:null,
         unitPrice: null,
         integral:null,
-        placeOptions:[]
+        placeOptions:[],
+        achievementOptions:[]
       };
       this.resetForm("form");
     },
@@ -465,10 +488,13 @@ export default {
     handleUpdate(row) {
       this.reset();
       this.getPlaceOption();
+      this.getAchievementOption();
       const id = row.id || this.ids
       getStudent(id).then(response => {
         this.form = response.data;
         this.form.placeId = parseInt(response.data.placeId);
+        this.form.achievement = JSON.parse(response.data.achievement);
+        console.log(this.form.achievement);
         this.open = true;
         this.title = "修改学员";
       });
@@ -479,6 +505,8 @@ export default {
         if (valid) {
           if (this.form.id != null) {
             console.log(this.form);
+            this.form.achievement = JSON.stringify(this.form.achievement)
+            console.log(this.form.achievement);
             updateStudent(this.form).then(response => {
               this.msgSuccess("修改成功");
               this.open = false;
