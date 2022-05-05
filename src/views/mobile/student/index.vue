@@ -133,6 +133,7 @@
       <el-table-column label="报名时间" align="center" prop="registr_time" :show-overflow-tooltip="true"/>
       <el-table-column label="所属场地" align="center" prop="place_name" :show-overflow-tooltip="true"/>
       <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
+      <el-table-column label="积分" align="center" prop="integral" :show-overflow-tooltip="true"/>
       <el-table-column label="家长名" align="center" prop="parent_name" :show-overflow-tooltip="true"/>
       <el-table-column label="年龄" align="center" prop="age" :show-overflow-tooltip="true"/>
 <!--      <el-table-column label="学号" align="center" prop="sn" :show-overflow-tooltip="true"/>-->
@@ -253,6 +254,9 @@
         <el-form-item label="电话" prop="tel">
           <el-input v-model="form.tel" placeholder="请输入电话" />
         </el-form-item>
+        <el-form-item label="积分" prop="tel">
+          <el-input v-model="form.integral" placeholder="请输入积分" />
+        </el-form-item>
         <el-form-item label="身份证号" prop="idCard">
           <el-input v-model="form.idCard" placeholder="请输入身份证号" />
         </el-form-item>
@@ -322,7 +326,8 @@ export default {
         saleName: null,
         saleTel:null,
         saleId:null,
-        studyStatus:null
+        studyStatus:null,
+        integral:null
       },
       // 表单参数
       form: {},
@@ -427,6 +432,7 @@ export default {
         saleName: null,
         saleTel:null,
         unitPrice: null,
+        integral:null,
         placeOptions:[]
       };
       this.resetForm("form");
