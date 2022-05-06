@@ -19,8 +19,17 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="上级id" prop="parentId">
+        <el-input
+          v-model="queryParams.parentId"
+          placeholder="请输入上级id"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+	    <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
@@ -36,46 +45,21 @@
           v-hasPermi="['mobile:achievement:add']"
         >新增</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['mobile:achievement:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['mobile:achievement:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['mobile:achievement:export']"
-        >导出</el-button>
-      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="achievementList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="成就积分" align="center" prop="id" />
+    <el-table
+      v-loading="loading"
+      :data="achievementList"
+      row-key="id"
+      default-expand-all
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      :header-cell-style="{'text-align':'left'}"
+      :cell-style="{'text-align':'left'}"
+    >
       <el-table-column label="成就名称" align="center" prop="name" />
       <el-table-column label="成就积分" align="center" prop="integral" />
+      <el-table-column label="上级id" align="center" prop="parentId" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -95,14 +79,6 @@
         </template>
       </el-table-column>
     </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
 
     <!-- 添加或修改成就维护对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
@@ -112,6 +88,9 @@
         </el-form-item>
         <el-form-item label="成就积分" prop="integral">
           <el-input v-model="form.integral" placeholder="请输入成就积分" />
+        </el-form-item>
+        <el-form-item label="上级id" prop="parentId">
+          <treeselect v-model="form.parentId" :options="achievementOptions" :normalizer="normalizer" placeholder="请选择上级id" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -124,37 +103,33 @@
 
 <script>
 import { listAchievement, getAchievement, delAchievement, addAchievement, updateAchievement, exportAchievement } from "@/api/mobile/achievement";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "Achievement",
   components: {
+    Treeselect
   },
   data() {
     return {
       // 遮罩层
       loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
       // 显示搜索条件
       showSearch: true,
-      // 总条数
-      total: 0,
       // 成就维护表格数据
       achievementList: [],
+      // 成就维护树选项
+      achievementOptions: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
       // 查询参数
       queryParams: {
-        pageNum: 1,
-        pageSize: 10,
         name: null,
-        integral: null
+        integral: null,
+        parentId: null
       },
       // 表单参数
       form: {},
@@ -171,9 +146,28 @@ export default {
     getList() {
       this.loading = true;
       listAchievement(this.queryParams).then(response => {
-        this.achievementList = response.rows;
-        this.total = response.total;
+        this.achievementList = this.handleTree(response.data, "id", "parentId");
         this.loading = false;
+      });
+    },
+    /** 转换成就维护数据结构 */
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.id,
+        label: node.name,
+        children: node.children
+      };
+    },
+	/** 查询部门下拉树结构 */
+    getTreeselect() {
+      listAchievement().then(response => {
+        this.achievementOptions = [];
+        const data = { id: 0, name: '顶级节点', children: [] };
+        data.children = this.handleTree(response.data, "id", "parentId");
+        this.achievementOptions.push(data);
       });
     },
     // 取消按钮
@@ -186,13 +180,13 @@ export default {
       this.form = {
         id: null,
         name: null,
-        integral: null
+        integral: null,
+        parentId: null
       };
       this.resetForm("form");
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1;
       this.getList();
     },
     /** 重置按钮操作 */
@@ -200,23 +194,21 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
-      this.multiple = !selection.length
-    },
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
+	  this.getTreeselect();
       this.open = true;
       this.title = "添加成就维护";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const id = row.id || this.ids
-      getAchievement(id).then(response => {
+	  this.getTreeselect();
+      if (row != null) {
+        this.form.parentId = row.id;
+      }
+      getAchievement(row.id).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "修改成就维护";
@@ -244,29 +236,15 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$confirm('是否确认删除成就维护编号为"' + ids + '"的数据项?', "警告", {
+      this.$confirm('是否确认删除成就维护编号为"' + row.id + '"的数据项?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         }).then(function() {
-          return delAchievement(ids);
+          return delAchievement(row.id);
         }).then(() => {
           this.getList();
           this.msgSuccess("删除成功");
-        })
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$confirm('是否确认导出所有成就维护数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return exportAchievement(queryParams);
-        }).then(response => {
-          this.download(response.msg);
         })
     }
   }

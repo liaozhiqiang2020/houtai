@@ -53,12 +53,22 @@ export function exportAchievement(query) {
 }
 
 //查询成就下拉列表
-export function listAchievementSelect(query) {
+export function listAchievementSelect(data) {
   return request({
     url: '/mobile/achievement/queryAchievement',
-    method: 'get',
-    params: query
+    method: 'post',
+    data: data
   })
 }
+
+export function achieveTreeselect(studentId) {
+  return request({
+    url: '/mobile/achievement/selectAchievelistTree/' + studentId,
+    method: 'get'
+  })
+}
+
+
+
 
 

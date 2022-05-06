@@ -257,15 +257,18 @@
         <el-form-item label="积分" prop="integral">
           <el-input v-model="form.integral" placeholder="请输入积分" />
         </el-form-item>
-        <el-form-item label="成就"  prop="achievement">
-          <el-select v-model="form.achievement" multiple placeholder="请选择">
-            <el-option
-              v-for="item in achievementOptions"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
+        <el-form-item label="成就">
+          <el-tree
+            class="tree-border"
+            :data="achievementOptions"
+            show-checkbox
+            default-expand-all
+            ref="achievement"
+            node-key="id"
+            :check-strictly="false"
+            empty-text="加载中，请稍后"
+            :props="defaultProps"
+          ></el-tree>
         </el-form-item>
         <el-form-item label="身份证号" prop="idCard">
           <el-input v-model="form.idCard" placeholder="请输入身份证号" />
@@ -291,7 +294,7 @@
 
 <script>
 import { listStudent, getStudent, delStudent, addStudent, updateStudent, exportStudent ,placeList,queryCoachSale,updateStudentStatus} from "@/api/mobile/student";
-import {listAchievementSelect} from "@/api/mobile/achievement"
+import {achieveTreeselect} from "@/api/mobile/achievement"
 
 export default {
   name: "Student",
@@ -345,6 +348,10 @@ export default {
       },
       // 表单参数
       form: {},
+      defaultProps: {
+        children: "childTtAchievements",
+        label: "name"
+      },
       // 表单校验
       rules: {
       }
@@ -354,7 +361,7 @@ export default {
     this.getList();
     this.getPlaceOption();
     this.getCoachSaleOption();
-    this.getAchievementOption();
+    // this.getAchievementOption();
     this.getDicts("student_charge_type").then(response => {
       this.chargeTypeOptions = response.data;
     });
@@ -391,10 +398,19 @@ export default {
       });
     },
     //查询成就下拉列表
-    getAchievementOption(){
-      listAchievementSelect().then(response => {
-        this.achievementOptions = response;
-        this.loading = false;
+    // getAchievementOption(){
+    //   listAchievementSelect({}).then(response => {
+    //     this.achievementOptions = response;
+    //     console.log(this.achievementOptions);
+    //     this.loading = false;
+    //   });
+    // },
+    /** 根据学员ID查询成就树结构 */
+    getAchieveTreeselect(studentId) {
+      return achieveTreeselect(studentId).then(response => {
+        this.achievementOptions = response.menus;
+        // console.log(this.achievementOptions);
+        return response;
       });
     },
     // 缴费方式字典翻译
@@ -434,6 +450,15 @@ export default {
     cancel() {
       this.open = false;
       this.reset();
+    },
+    // 所有菜单节点数据
+    getMenuAllCheckedKeys() {
+      // 目前被选中的菜单节点
+      let checkedKeys = this.$refs.achievement.getCheckedKeys();
+      // 半选中的菜单节点
+      let halfCheckedKeys = this.$refs.achievement.getHalfCheckedKeys();
+      checkedKeys.unshift.apply(checkedKeys, halfCheckedKeys);
+      return checkedKeys;
     },
     // 表单重置
     reset() {
@@ -476,7 +501,6 @@ export default {
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
-
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
@@ -488,13 +512,30 @@ export default {
     handleUpdate(row) {
       this.reset();
       this.getPlaceOption();
-      this.getAchievementOption();
+      // this.getAchievementOption();
       const id = row.id || this.ids
+      //成就列表
+      const achieve = this.getAchieveTreeselect(id);
+      console.log(achieve);
+
       getStudent(id).then(response => {
         this.form = response.data;
         this.form.placeId = parseInt(response.data.placeId);
-        this.form.achievement = JSON.parse(response.data.achievement);
-        console.log(this.form.achievement);
+        this.$nextTick(() => {
+          // this.form.achievement = JSON.parse(response.data.achievement);
+          // console.log(this.form.achievement);
+          achieve.then(res => {
+            let checkedKeys = JSON.parse(res.checkedKeys);
+            console.log(11111);
+            console.log(checkedKeys);
+            checkedKeys.forEach((v) => {
+              this.$nextTick(()=>{
+                this.$refs.achievement.setChecked(v, true ,false);
+              })
+            })
+          });
+        });
+
         this.open = true;
         this.title = "修改学员";
       });
@@ -505,7 +546,8 @@ export default {
         if (valid) {
           if (this.form.id != null) {
             console.log(this.form);
-            this.form.achievement = JSON.stringify(this.form.achievement)
+            // this.form.achievement = JSON.stringify(this.form.achievement)
+            this.form.achievement = JSON.stringify(this.getMenuAllCheckedKeys());
             console.log(this.form.achievement);
             updateStudent(this.form).then(response => {
               this.msgSuccess("修改成功");
