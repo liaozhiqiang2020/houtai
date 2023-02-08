@@ -7,6 +7,7 @@
           placeholder="请输入姓名"
           clearable
           size="small"
+          clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -16,11 +17,12 @@
           placeholder="请输入家长电话"
           clearable
           size="small"
+          clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
       <el-form-item label="缴费方式" prop="chargeType">
-        <el-select v-model="queryParams.chargeType" placeholder="请选择缴费方式">
+        <el-select v-model="queryParams.chargeType" placeholder="请选择缴费方式" clearable>
           <el-option
             v-for="dict in chargeTypeOptions"
             :key="dict.dictValue"
@@ -30,7 +32,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="成人" prop="chargeType">
-        <el-select v-model="queryParams.adult" placeholder="请选择是否成人">
+        <el-select v-model="queryParams.adult" placeholder="请选择是否成人" clearable>
           <el-option
             v-for="dict in adultOptions"
             :key="parseInt(dict.dictValue)"
@@ -40,7 +42,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="所属场地" prop="placeId">
-        <el-select v-model="queryParams.placeId" placeholder="请选择">
+        <el-select v-model="queryParams.placeId" placeholder="请选择" clearable>
           <el-option
             v-for="item in placeOptions"
             :key="item.id"
@@ -48,15 +50,6 @@
             :value="item.id"
           ></el-option>
         </el-select>
-      </el-form-item>
-      <el-form-item label="电话" prop="tel">
-        <el-input
-          v-model="queryParams.parentTel"
-          placeholder="请输入电话"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -115,7 +108,6 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="姓名" align="center" prop="name" :show-overflow-tooltip="true"/>
       <el-table-column label="家长电话" align="center" prop="parent_tel" :show-overflow-tooltip="true"/>
-<!--      <el-table-column label="当前状态" align="center" prop="study_status" :formatter="studyStatusFormat" :show-overflow-tooltip="true"/>-->
       <el-table-column label="当前状态" align="center" key="study_status" prop="study_status">
         <template slot-scope="scope">
           <el-switch
@@ -136,10 +128,8 @@
       <el-table-column label="积分" align="center" prop="integral" :show-overflow-tooltip="true"/>
       <el-table-column label="家长名" align="center" prop="parent_name" :show-overflow-tooltip="true"/>
       <el-table-column label="年龄" align="center" prop="age" :show-overflow-tooltip="true"/>
-<!--      <el-table-column label="学号" align="center" prop="sn" :show-overflow-tooltip="true"/>-->
-      <el-table-column label="身份证号" align="center" prop="id_card" :show-overflow-tooltip="true"/>
+<!--      <el-table-column label="身份证号" align="center" prop="id_card" :show-overflow-tooltip="true"/>-->
       <el-table-column label="招生人" align="center" prop="sale_name"  :show-overflow-tooltip="true"/>
-<!--      <el-table-column label="招生人电话" align="center" prop="sale_tel"  :show-overflow-tooltip="true"/>-->
       <el-table-column label="最后抽奖时间" align="center" prop="last_draw_date"  :show-overflow-tooltip="true"/>
       <el-table-column label="总抽奖次数" align="center" prop="draw_count"  :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -176,8 +166,21 @@
         <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" placeholder="请输入姓名" />
         </el-form-item>
-        <el-form-item label="家长电话" prop="parentTel">
-          <el-input v-model="form.parentTel" placeholder="请输入家长电话" />
+        <el-form-item label="家长电话" prop="parentTel" v-show="form.adult=='2'">
+          <el-input v-model="form.parentTel" placeholder="需要填写微信绑定的手机号，小程序登录用" />
+        </el-form-item>
+        <el-form-item label="电话" prop="tel" v-show="form.adult=='1'">
+          <el-input v-model="form.tel" placeholder="需要填写微信绑定的手机号，小程序登录用" />
+        </el-form-item>
+        <el-form-item label="是否成人" prop="adult">
+          <el-select v-model="form.adult" placeholder="请选择是否成人">
+            <el-option
+              v-for="dict in adultOptions"
+              :key="parseInt(dict.dictValue)"
+              :label="dict.dictLabel"
+              :value="parseInt(dict.dictValue)"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="所属场地" prop="placeId">
           <el-select v-model="form.placeId" placeholder="请选择">
@@ -207,21 +210,11 @@
                           placeholder="选择报名时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="是否成人" prop="adult">
-          <el-select v-model="form.adult" placeholder="请选择是否成人">
-            <el-option
-              v-for="dict in adultOptions"
-              :key="parseInt(dict.dictValue)"
-              :label="dict.dictLabel"
-              :value="parseInt(dict.dictValue)"
-            ></el-option>
-          </el-select>
-        </el-form-item>
         <el-form-item label="剩余金额" prop="money">
           <el-input v-model="form.money" placeholder="请输入剩余金额" />
         </el-form-item>
         <el-form-item  label="招生人" prop="saleId">
-          <el-select v-model="form.saleId" placeholder="请选择">
+          <el-select v-model="form.saleName" placeholder="请选择" @change="saleIdTypesChanged">
             <el-option
               v-for="item in coachSaleOptions"
               :key="item.id"
@@ -230,11 +223,8 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="招生人" prop="saleName">
-          <el-input v-model="form.saleName" disabled="disabled" placeholder="请输入招生人" />
-        </el-form-item>
-<!--        <el-form-item label="招生人电话" prop="saleTel">-->
-<!--          <el-input v-model="form.saleTel" placeholder="请输入招生人电话" />-->
+<!--        <el-form-item label="招生人" prop="saleName">-->
+<!--          <el-input v-model="form.saleName" disabled="disabled" placeholder="请输入招生人" />-->
 <!--        </el-form-item>-->
         <el-form-item v-if="form.chargeType==2" label="单节价格" prop="unitPrice">
           <el-input v-model="form.unitPrice" placeholder="请输入单节价格" />
@@ -242,17 +232,17 @@
         <el-form-item v-if="form.chargeType==2" label="剩余课时" prop="classHours">
           <el-input v-model="form.classHours" placeholder="请输入剩余课时" />
         </el-form-item>
-        <el-form-item label="地址" prop="address">
-          <el-input v-model="form.address" placeholder="请输入地址" />
-        </el-form-item>
         <el-form-item label="年龄" prop="age">
           <el-input v-model="form.age" placeholder="请输入年龄" />
+        </el-form-item>
+        <el-form-item label="身份证号" prop="idCard">
+          <el-input v-model="form.idCard" placeholder="请输入身份证号" />
         </el-form-item>
         <el-form-item label="学号" prop="sn">
           <el-input v-model="form.sn" placeholder="请输入学号" />
         </el-form-item>
-        <el-form-item label="电话" prop="tel">
-          <el-input v-model="form.tel" placeholder="请输入电话" />
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="form.address" placeholder="请输入地址" />
         </el-form-item>
         <el-form-item label="积分" prop="integral">
           <el-input v-model="form.integral" placeholder="请输入积分" />
@@ -270,19 +260,8 @@
             :props="defaultProps"
           ></el-tree>
         </el-form-item>
-        <el-form-item label="身份证号" prop="idCard">
-          <el-input v-model="form.idCard" placeholder="请输入身份证号" />
-        </el-form-item>
-        <el-form-item label="当前状态" prop="studyStatus">
-          <el-select v-model="form.studyStatus" placeholder="请选择当前状态">
-            <el-option
-              v-for="dict in studyStatusOptions"
-              :key="parseInt(dict.dictValue)"
-              :label="dict.dictLabel"
-              :value="parseInt(dict.dictValue)"
-            ></el-option>
-          </el-select>
-        </el-form-item>
+
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -344,7 +323,8 @@ export default {
         saleId:null,
         studyStatus:null,
         integral:null,
-        achievement:null
+        achievement:null,
+        adult:null
       },
       // 表单参数
       form: {},
@@ -397,19 +377,10 @@ export default {
         this.loading = false;
       });
     },
-    //查询成就下拉列表
-    // getAchievementOption(){
-    //   listAchievementSelect({}).then(response => {
-    //     this.achievementOptions = response;
-    //     console.log(this.achievementOptions);
-    //     this.loading = false;
-    //   });
-    // },
     /** 根据学员ID查询成就树结构 */
     getAchieveTreeselect(studentId) {
       return achieveTreeselect(studentId).then(response => {
         this.achievementOptions = response.menus;
-        // console.log(this.achievementOptions);
         return response;
       });
     },
@@ -424,6 +395,16 @@ export default {
     // 是否成人字典翻译
     adultFormat(row, column) {
       return this.selectDictLabel(this.adultOptions, row.adult);
+    },
+    saleIdTypesChanged(val){
+      this.coachSaleOptions.map((item) => {
+        //  item就是this.cityOptions这个数组里面的每一个对象
+        // 通过每一个对象的code与value也就是对应的每一个选中的code对比
+        if (item.id === val) {
+          // 符合的对象添加进之前定义的新新数组里面
+           this.form.saleName = item.name
+        }
+      })
     },
     tableRowClassName(row,rowIndex){
       if (row.row.money<200 && row.row.study_status==0) {
@@ -470,17 +451,19 @@ export default {
         name: null,
         parentName: null,
         parentTel: null,
-        placeId: null,
+        placeId: 1,
         registrTime: null,
         sn: null,
         tel: null,
         idCard: null,
-        money: null,
+        money: 0,
         saleName: null,
         saleTel:null,
         unitPrice: null,
-        integral:null,
+        integral:0,
         placeOptions:[],
+        adult:2,
+        chargeType:1,
         achievementOptions:[]
       };
       this.resetForm("form");
@@ -544,6 +527,9 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          if(this.form.parentTel==null){
+            this.form.parentTel = this.form.tel;
+          }
           if (this.form.id != null) {
             console.log(this.form);
             // this.form.achievement = JSON.stringify(this.form.achievement)
