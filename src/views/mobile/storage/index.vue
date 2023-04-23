@@ -10,6 +10,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="场地" prop="placeId">
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="商品分类" prop="brand">
         <el-select v-model="queryParams.type" placeholder="请选择商品分类">
           <el-option
@@ -131,6 +141,16 @@
     <!-- 添加或修改商品库存对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="所属场地" prop="placeId">
+          <el-select v-model="form.placeId" placeholder="请选择">
+            <el-option
+              v-for="item in placeOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="商品名" prop="name">
           <el-input v-model="form.name" placeholder="请输入商品名" />
         </el-form-item>
@@ -200,7 +220,7 @@
 <script>
 import { listStorage, getStorage, delStorage, addStorage, updateStorage, inStorageFun,outStorageFun,findStorageSelectList } from "@/api/mobile/storage";
 import ImageUpload from '@/components/ImageUpload';
-import {placeList} from "@/api/mobile/student";
+import {placeList,studentList,courseList,coachList} from "@/api/mobile/student";
 
 export default {
   name: "Storage",
@@ -223,6 +243,8 @@ export default {
       total: 0,
       // 商品库存表格数据
       storageList: [],
+      //场地选项
+      placeOptions:[],
       storageOptions:[],
       goodsTypeOptions:[],
       inStorageView:false,
@@ -254,6 +276,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
     this.getDicts("goods_type").then(response => {
       this.goodsTypeOptions = response.data;
     });
@@ -265,6 +288,13 @@ export default {
       listStorage(this.queryParams).then(response => {
         this.storageList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },

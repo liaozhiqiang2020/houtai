@@ -10,6 +10,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="场地" prop="placeId">
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="类型" prop="type">
         <el-select v-model="queryParams.type" placeholder="请选择类型" clearable size="small">
           <el-option
@@ -127,6 +137,16 @@
         <el-form-item label="标题" prop="nickName">
           <el-input v-model="form.nickName" placeholder="请输入标题" />
         </el-form-item>
+        <el-form-item label="所属场地" prop="placeId">
+          <el-select v-model="form.placeId" placeholder="请选择">
+            <el-option
+              v-for="item in placeOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
 
         <el-form-item label="类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">
@@ -187,6 +207,8 @@ export default {
       total: 0,
       // 公告轮播表格数据
       noticeList: [],
+      //场地选项
+      placeOptions:[],
       //学员选项
       studentOptions:[],
       // 弹出层标题
@@ -212,6 +234,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
     this.getDicts("notice_type").then(response => {
       this.typeOptions = response.data;
     });
@@ -224,6 +247,13 @@ export default {
       listNotice(this.queryParams).then(response => {
         this.noticeList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },

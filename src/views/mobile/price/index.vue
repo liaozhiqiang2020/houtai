@@ -19,6 +19,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="场地" prop="placeId">
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="开始时间" prop="starttime">
         <el-date-picker clearable size="small"
           v-model="queryParams.starttime"
@@ -131,7 +141,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -143,6 +153,16 @@
     <!-- 添加或修改价格对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="所属场地" prop="placeId">
+          <el-select v-model="form.placeId" placeholder="请选择">
+            <el-option
+              v-for="item in placeOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="原价格" prop="realPrice">
           <el-input v-model="form.realPrice" placeholder="请输入原价格" />
         </el-form-item>
@@ -179,6 +199,7 @@
 
 <script>
 import { listPrice, getPrice, delPrice, addPrice, updatePrice, exportPrice } from "@/api/mobile/price";
+import {placeList,studentList} from "@/api/mobile/student";
 
 export default {
   name: "Price",
@@ -196,6 +217,8 @@ export default {
       multiple: true,
       // 显示搜索条件
       showSearch: true,
+      //场地选项
+      placeOptions:[],
       // 总条数
       total: 0,
       // 价格表格数据
@@ -226,6 +249,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
   },
   methods: {
     /** 查询价格列表 */
@@ -234,6 +258,13 @@ export default {
       listPrice(this.queryParams).then(response => {
         this.priceList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },

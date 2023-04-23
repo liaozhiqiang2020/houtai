@@ -10,6 +10,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="场地" prop="placeId">
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="学员" prop="studentId">
         <el-select v-model="queryParams.studentId" placeholder="请选择学员">
           <el-option
@@ -27,15 +37,6 @@
           value-format="yyyy-MM-dd"
           placeholder="选择中奖时间">
         </el-date-picker>
-      </el-form-item>
-      <el-form-item label="奖品" prop="drawPrize">
-        <el-input
-          v-model="queryParams.drawPrize"
-          placeholder="请输入奖品"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
       </el-form-item>
       <el-form-item label="几等奖" prop="drawAwards">
         <el-select v-model="queryParams.drawAwards" placeholder="请选择几等奖" clearable size="small">
@@ -238,6 +239,8 @@ export default {
       open: false,
       // 几等奖字典
       drawAwardsOptions: [],
+      //场地选项
+      placeOptions:[],
       //学员选项
       studentOptions:[],
       // 是否兑奖(0 未兑奖，1已兑奖)字典
@@ -262,6 +265,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
     this.getStduentOption();
     this.getDicts("draw_type").then(response => {
       this.drawAwardsOptions = response.data;
@@ -277,6 +281,13 @@ export default {
       listResult(this.queryParams).then(response => {
         this.resultList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },

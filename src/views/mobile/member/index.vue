@@ -10,6 +10,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="场地" prop="placeId">
+        <el-select v-model="queryParams.placeId" placeholder="请选择">
+          <el-option
+            v-for="item in placeOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="类型" prop="type">
         <el-select v-model="queryParams.type" placeholder="请选择类型" clearable size="small">
           <el-option
@@ -128,6 +138,16 @@
         <el-form-item label="手机号" prop="tel">
           <el-input v-model="form.tel" placeholder="请输入手机号" />
         </el-form-item>
+        <el-form-item label="所属场地" prop="placeId">
+          <el-select v-model="form.placeId" placeholder="请选择">
+            <el-option
+              v-for="item in placeOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">
             <el-option
@@ -149,6 +169,7 @@
 
 <script>
 import { listMember, getMember, delMember, addMember, updateMember, exportMember } from "@/api/mobile/member";
+import {placeList,studentList} from "@/api/mobile/student";
 
 export default {
   name: "Member",
@@ -170,6 +191,8 @@ export default {
       total: 0,
       // 会员表格数据
       memberList: [],
+      //场地选项
+      placeOptions:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -195,6 +218,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getPlaceOption();
     this.getDicts("member_type").then(response => {
       this.typeOptions = response.data;
     });
@@ -206,6 +230,13 @@ export default {
       listMember(this.queryParams).then(response => {
         this.memberList = response.rows;
         this.total = response.total;
+        this.loading = false;
+      });
+    },
+    //查询场地下拉列表
+    getPlaceOption(){
+      placeList().then(response => {
+        this.placeOptions = response;
         this.loading = false;
       });
     },

@@ -51,6 +51,16 @@
           ></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="状态" prop="studyStatus">
+        <el-select v-model="queryParams.studyStatus" placeholder="请选择" clearable>
+          <el-option
+            v-for="item in studyStatusOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -68,46 +78,46 @@
           v-hasPermi="['mobile:student:add']"
         >新增</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['mobile:student:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['mobile:student:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          @click="handleExport"
-          v-hasPermi="['mobile:student:export']"
-        >导出</el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="success"-->
+<!--          plain-->
+<!--          icon="el-icon-edit"-->
+<!--          size="mini"-->
+<!--          :disabled="single"-->
+<!--          @click="handleUpdate"-->
+<!--          v-hasPermi="['mobile:student:edit']"-->
+<!--        >修改</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="danger"-->
+<!--          plain-->
+<!--          icon="el-icon-delete"-->
+<!--          size="mini"-->
+<!--          :disabled="multiple"-->
+<!--          @click="handleDelete"-->
+<!--          v-hasPermi="['mobile:student:remove']"-->
+<!--        >删除</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="warning"-->
+<!--          plain-->
+<!--          icon="el-icon-download"-->
+<!--          size="mini"-->
+<!--          @click="handleExport"-->
+<!--          v-hasPermi="['mobile:student:export']"-->
+<!--        >导出</el-button>-->
+<!--      </el-col>-->
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange"
               :row-class-name="tableRowClassName">
-      <el-table-column type="selection" width="55" align="center" />
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+      <el-table-column label="家长电话" align="center" prop="parent_tel" :sortable="true" :show-overflow-tooltip="true"/>
       <el-table-column label="姓名" align="center" prop="name" :show-overflow-tooltip="true"/>
-      <el-table-column label="家长电话" align="center" prop="parent_tel" :show-overflow-tooltip="true"/>
       <el-table-column label="当前状态" align="center" key="study_status" prop="study_status">
         <template slot-scope="scope">
           <el-switch
@@ -124,9 +134,9 @@
       <el-table-column label="是否成人" align="center" prop="adult" :formatter="adultFormat" :show-overflow-tooltip="true"/>
       <el-table-column label="报名时间" align="center" prop="registr_time" :show-overflow-tooltip="true"/>
       <el-table-column label="所属场地" align="center" prop="place_name" :show-overflow-tooltip="true"/>
-      <el-table-column label="电话" align="center" prop="tel" :show-overflow-tooltip="true"/>
+<!--      <el-table-column label="电话" align="center" prop="tel" :sortable="true" :show-overflow-tooltip="true"/>-->
       <el-table-column label="积分" align="center" prop="integral" :show-overflow-tooltip="true"/>
-      <el-table-column label="家长名" align="center" prop="parent_name" :show-overflow-tooltip="true"/>
+<!--      <el-table-column label="家长名" align="center" prop="parent_name" :show-overflow-tooltip="true"/>-->
       <el-table-column label="年龄" align="center" prop="age" :show-overflow-tooltip="true"/>
 <!--      <el-table-column label="身份证号" align="center" prop="id_card" :show-overflow-tooltip="true"/>-->
       <el-table-column label="招生人" align="center" prop="sale_name"  :show-overflow-tooltip="true"/>
@@ -303,7 +313,13 @@ export default {
       //销售选项
       coachSaleOptions:[],
       //当前状态
-      studyStatusOptions:[],
+      studyStatusOptions:[{
+        "id":"0",
+        "name":"启用"
+      },{
+        "id":"1",
+        "name":"停用"
+      }],
       //成就列表
       achievementOptions:[],
       // 弹出层标题
@@ -321,7 +337,7 @@ export default {
         saleName: null,
         saleTel:null,
         saleId:null,
-        studyStatus:null,
+        studyStatus:"0",
         integral:null,
         achievement:null,
         adult:null
@@ -348,15 +364,16 @@ export default {
     this.getDicts("student_adult").then(response => {
       this.adultOptions = response.data;
     });
-    this.getDicts("student_study_status").then(response => {
-      this.studyStatusOptions = response.data;
-    });
+    // this.getDicts("student_study_status").then(response => {
+    //   this.studyStatusOptions = response.data;
+    //   console.log(this.studyStatusOptions);
+    // });
   },
   methods: {
     /** 查询学员列表 */
     getList() {
       this.loading = true;
-      console.log(this.queryParams.placeId);
+      // console.log(this.queryParams.placeId);
       listStudent(this.queryParams).then(response => {
         this.studentList = response.rows;
         this.total = response.total;
@@ -389,9 +406,9 @@ export default {
       return this.selectDictLabel(this.chargeTypeOptions, row.charge_type);
     },
     // 当前状态字典翻译
-    studyStatusFormat(row, column) {
-      return this.selectDictLabel(this.studyStatusOptions, row.study_status);
-    },
+    // studyStatusFormat(row, column) {
+    //   return this.selectDictLabel(this.studyStatusOptions, row.study_status);
+    // },
     // 是否成人字典翻译
     adultFormat(row, column) {
       return this.selectDictLabel(this.adultOptions, row.adult);
@@ -407,7 +424,7 @@ export default {
       })
     },
     tableRowClassName(row,rowIndex){
-      if (row.row.money<200 && row.row.study_status==0) {
+      if (row.row.money<200 && row.row.study_status=="0") {
         return 'red';
       }
       return '';
@@ -499,11 +516,17 @@ export default {
       const id = row.id || this.ids
       //成就列表
       const achieve = this.getAchieveTreeselect(id);
-      console.log(achieve);
+      // console.log(achieve);
 
       getStudent(id).then(response => {
         this.form = response.data;
         this.form.placeId = parseInt(response.data.placeId);
+        if(this.form.parentTel==null){
+           this.form.parentTel = this.form.tel;
+        }
+        if(this.form.tel==null){
+          this.form.tel = this.form.parentTel;
+        }
         this.$nextTick(() => {
           // this.form.achievement = JSON.parse(response.data.achievement);
           // console.log(this.form.achievement);
@@ -530,6 +553,7 @@ export default {
           if(this.form.parentTel==null){
             this.form.parentTel = this.form.tel;
           }
+          this.form.studyStatus="0";
           if (this.form.id != null) {
             console.log(this.form);
             // this.form.achievement = JSON.stringify(this.form.achievement)
@@ -553,7 +577,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$confirm('是否确认删除学员编号为"' + ids + '"的数据项?', "警告", {
+      this.$confirm('是否确认删除学员"' + row.name + '"?', "警告", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
